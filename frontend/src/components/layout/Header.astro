@@ -1,0 +1,169 @@
+---
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+  { name: 'INICIO', href: '/' },
+  { name: 'QUIÉN SOY', href: '/quien-soy' },
+  { name: 'ÁLBUMES', href: '/portafolio' },
+  { name: 'MUSEO', href: '/museo' },
+  { name: 'CREATIVO', href: '/creativo' },
+  { name: 'MURAL', href: '/mural' },
+  { name: 'FOTÓGRAFOS', href: '/fotografos' },
+];
+---
+
+<header class="fixed top-0 left-0 w-full z-50 bg-obsidian/95 backdrop-blur-xl border-b border-white/10 transition-all duration-300">
+  <div class="w-full px-4 sm:px-8 md:px-12 h-20 flex items-center justify-between">
+    
+    <!-- Clean Typography Brand -->
+    <a href="/" class="flex items-center gap-2 sm:gap-3 group" data-cursor="pointer">
+      <span class="font-condensed text-2xl sm:text-3xl font-bold tracking-[0.18em] text-pure group-hover:text-silver transition-colors">
+        MOMMENTUM
+      </span>
+      <span class="font-mono text-[9px] text-graphite tracking-widest hidden md:inline-block uppercase border-l border-white/20 pl-3">
+        FOTOGRAFÍAS
+      </span>
+    </a>
+
+    <!-- Desktop Navigation Links (Visible on lg screens) -->
+    <nav class="hidden lg:flex items-center gap-8 font-mono text-xs tracking-wider">
+      {navLinks.map((link) => (
+        <a 
+          href={link.href} 
+          class={`transition-colors py-1 ${
+            (currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href)))
+              ? 'text-pure font-bold border-b border-pure' 
+              : 'text-silver/70 hover:text-pure'
+          }`}
+          data-cursor="pointer"
+        >
+          {link.name}
+        </a>
+      ))}
+    </nav>
+
+    <!-- Right Controls: Intro Replay + Instagram + Mobile Hamburger Button -->
+    <div class="flex items-center gap-2 sm:gap-4">
+      <a 
+        href="/?replay=1" 
+        class="w-9 h-9 rounded border border-white/20 hover:border-white flex items-center justify-center text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm" 
+        title="Ver Intro"
+        data-cursor="pointer"
+      >
+        ↺
+      </a>
+
+      <a 
+        href="https://www.instagram.com/mommentum.ises/" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        class="hidden sm:inline-block px-4 py-2 border border-white/20 hover:border-white rounded font-mono text-xs text-white hover:bg-white hover:text-obsidian transition-all uppercase tracking-wider"
+        data-cursor="pointer"
+      >
+        @mommentum.ises ↗
+      </a>
+
+      <!-- Prominent Mobile Hamburger Menu Toggle Button (Visible on all mobile/tablet screens) -->
+      <button 
+        id="mobile-menu-btn" 
+        class="lg:hidden relative z-[999] w-11 h-11 rounded-lg bg-carbon/90 border border-white/25 hover:border-white flex flex-col items-center justify-center gap-1.5 p-2 text-white transition-all shadow-lg active:scale-95"
+        aria-label="Abrir Menú de Navegación"
+        data-cursor="pointer"
+      >
+        <span id="burger-line-1" class="w-6 h-0.5 bg-white rounded-full transition-all duration-300"></span>
+        <span id="burger-line-2" class="w-6 h-0.5 bg-white rounded-full transition-all duration-300"></span>
+        <span id="burger-line-3" class="w-6 h-0.5 bg-white rounded-full transition-all duration-300"></span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Fullscreen Mobile Navigation Drawer -->
+  <div 
+    id="mobile-menu-drawer" 
+    class="fixed inset-0 top-0 h-screen w-screen bg-[#07080A]/98 backdrop-blur-3xl z-[990] hidden flex-col justify-between pt-28 pb-10 px-6 sm:px-12 border-b border-white/10 lg:hidden overflow-y-auto select-none"
+  >
+    <!-- Mobile Links List -->
+    <nav class="flex flex-col gap-5 font-condensed text-3xl sm:text-4xl font-bold uppercase tracking-wider">
+      {navLinks.map((link, idx) => (
+        <a 
+          href={link.href} 
+          class={`mobile-nav-link flex items-center justify-between py-2 border-b border-white/10 transition-colors ${
+            (currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href)))
+              ? 'text-white font-bold pl-2' 
+              : 'text-silver/60 hover:text-white pl-2'
+          }`}
+          data-cursor="pointer"
+        >
+          <span>{link.name}</span>
+          <span class="font-mono text-xs text-graphite font-normal">0{idx + 1} ↗</span>
+        </a>
+      ))}
+    </nav>
+
+    <!-- Mobile Footer Info -->
+    <div class="pt-6 border-t border-white/10 flex flex-col gap-4 font-mono text-xs text-graphite">
+      <a 
+        href="https://www.instagram.com/mommentum.ises/" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        class="w-full py-4 bg-white text-obsidian font-bold text-center rounded-lg uppercase tracking-wider text-xs shadow-xl"
+        data-cursor="pointer"
+      >
+        INSTAGRAM @MOMMENTUM.ISES ↗
+      </a>
+      <div class="flex items-center justify-between text-[10px] text-silver/60 pt-2">
+        <span>GUATEMALA • 2026</span>
+        <span>VICTOR CIFUENTES</span>
+      </div>
+    </div>
+
+  </div>
+</header>
+
+<script>
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const menuDrawer = document.getElementById('mobile-menu-drawer');
+  const line1 = document.getElementById('burger-line-1');
+  const line2 = document.getElementById('burger-line-2');
+  const line3 = document.getElementById('burger-line-3');
+  const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+
+  let isMobileOpen = false;
+
+  const toggleMobileMenu = () => {
+    isMobileOpen = !isMobileOpen;
+    if (isMobileOpen) {
+      menuDrawer?.classList.remove('hidden');
+      menuDrawer?.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+      if (line1 && line2 && line3) {
+        line1.style.transform = 'translateY(8px) rotate(45deg)';
+        line2.style.opacity = '0';
+        line3.style.transform = 'translateY(-8px) rotate(-45deg)';
+      }
+    } else {
+      menuDrawer?.classList.add('hidden');
+      menuDrawer?.classList.remove('flex');
+      document.body.style.overflow = 'auto';
+      if (line1 && line2 && line3) {
+        line1.style.transform = 'none';
+        line2.style.opacity = '1';
+        line3.style.transform = 'none';
+      }
+    }
+  };
+
+  if (menuBtn) {
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleMobileMenu();
+    });
+  }
+
+  mobileLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      if (isMobileOpen) toggleMobileMenu();
+    });
+  });
+</script>

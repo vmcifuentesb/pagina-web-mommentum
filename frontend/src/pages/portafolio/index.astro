@@ -1,0 +1,180 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { ALBUMS } from '../../data/albums';
+
+const categories = ['TODOS', ...Array.from(new Set(ALBUMS.map(a => a.category)))];
+---
+
+<BaseLayout title="Álbumes de Fotos // MOMMENTUM">
+  
+  <section class="w-full min-h-screen pt-32 pb-32 px-6 md:px-12 bg-obsidian text-pure">
+    
+    <!-- Top Header Full Width -->
+    <div class="w-full mb-10 border-b border-white/10 pb-8">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6">
+        <div>
+          <a href="/" class="font-mono text-xs text-graphite hover:text-white mb-2 block" data-cursor="pointer">← VOLVER AL INICIO</a>
+          <span class="font-mono text-xs text-graphite tracking-[0.25em] uppercase">// CATÁLOGO DE ÁLBUMES</span>
+          <h1 class="font-condensed text-5xl sm:text-7xl md:text-8xl font-bold uppercase tracking-tight text-pure mt-1">
+            ÁLBUMES DE FOTOS.
+          </h1>
+        </div>
+        <p class="font-mono text-xs text-silver/80 max-w-sm">
+          Explora los álbumes. Cada uno cuenta con su propia forma de presentación.
+        </p>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="flex flex-wrap items-center gap-2 font-mono text-xs uppercase tracking-wider pt-2">
+        {categories.map((cat, idx) => (
+          <button 
+            class={`filter-cat-btn px-4 py-2 rounded transition-all ${idx === 0 ? 'bg-pure text-obsidian font-bold' : 'border border-white/15 text-graphite hover:text-pure hover:border-white'}`}
+            data-cat={cat}
+            data-cursor="pointer"
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <!-- Cinematic Fullscreen Album Showcase List (100% Full Width) -->
+    <div id="albums-container" class="w-full space-y-16">
+      {ALBUMS.map((album, idx) => (
+        <div 
+          class="album-card group relative w-full bg-carbon rounded-xl overflow-hidden border border-white/15 hover:border-white transition-all duration-500 shadow-2xl p-6 md:p-10"
+          data-category={album.category}
+        >
+          <!-- Main Album Header Row -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-6 mb-6">
+            <div>
+              <div class="flex items-center gap-3 font-mono text-xs text-graphite mb-1">
+                <span class="text-white font-bold">ÁLBUM 0{idx + 1}</span>
+                <span>•</span>
+                <span class="text-silver uppercase">{album.category}</span>
+                <span>•</span>
+                <span>{album.year}</span>
+              </div>
+              <h2 class="font-condensed text-4xl sm:text-6xl font-bold uppercase text-white tracking-tight drop-shadow-md">
+                {album.title}
+              </h2>
+            </div>
+
+            <!-- Action Button to Enter Album -->
+            <a 
+              href={`/portafolio/${album.slug}`}
+              class="px-8 py-3.5 bg-pure text-obsidian font-condensed tracking-wider uppercase font-bold hover:bg-silver transition-all rounded text-sm text-center flex-shrink-0"
+              data-cursor="pointer"
+            >
+              ENTRAR AL ÁLBUM ({album.photos.length} FOTOS) ↗
+            </a>
+          </div>
+
+          <!-- Description and Presentation Style -->
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 font-mono text-xs text-silver/80">
+            <p class="font-body text-sm text-silver/90 max-w-2xl">
+              {album.description}
+            </p>
+            <span class="text-graphite uppercase whitespace-nowrap">
+              ESTILO: <strong class="text-white">{album.styleName}</strong>
+            </span>
+          </div>
+
+          <!-- Mini Horizontal Carousel of Album Photos Preview (Grayscale High Contrast) -->
+          <div class="relative w-full">
+            <div class="album-preview-strip flex items-center gap-4 overflow-x-auto pb-4 scrollbar-thin">
+              {album.photos.slice(0, 6).map((photo, pIdx) => (
+                <div 
+                  class="flex-shrink-0 w-60 sm:w-72 aspect-[4/3] rounded-lg overflow-hidden bg-obsidian border border-white/10 hover:border-white transition-all cursor-pointer group/photo relative"
+                  data-lightbox-photo
+                  data-url={photo.url}
+                  data-title={photo.title}
+                  data-copy={photo.anitaCopy}
+                  data-album={album.title}
+                  data-shutter={photo.shutter}
+                  data-aperture={photo.aperture}
+                  data-iso={photo.iso}
+                  data-dim={photo.dimensions}
+                  data-cursor="view"
+                >
+                  <img 
+                    src={photo.url} 
+                    alt={photo.title} 
+                    class="w-full h-full object-cover filter grayscale contrast-125 group-hover/photo:grayscale-0 group-hover/photo:contrast-100 group-hover/photo:scale-105 transition-all duration-500" 
+                    loading="lazy"
+                  />
+                  <div class="absolute bottom-2 left-2 right-2 bg-obsidian/85 backdrop-blur-sm px-2.5 py-1 rounded font-mono text-[9px] text-white flex justify-between">
+                    <span>FOTO 0{pIdx + 1}</span>
+                    <span class="text-graphite">VER ↗</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            <div class="mt-2 flex items-center justify-between font-mono text-[10px] text-graphite">
+              <span>← RUEDA DEL RATÓN O DESLIZA PARA VER MÁS FOTOS PREVIAS</span>
+              <a href={`/portafolio/${album.slug}`} class="text-white hover:underline font-bold" data-cursor="pointer">
+                VER TODAS LAS {album.photos.length} FOTOS DE ESTE ÁLBUM →
+              </a>
+            </div>
+          </div>
+
+        </div>
+      ))}
+    </div>
+
+  </section>
+
+</BaseLayout>
+
+<script>
+  import gsap from 'gsap';
+
+  const filterBtns = document.querySelectorAll('.filter-cat-btn');
+  const albumCards = document.querySelectorAll('.album-card');
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b => {
+        b.classList.remove('bg-pure', 'text-obsidian', 'font-bold');
+        b.classList.add('border', 'border-white/15', 'text-graphite');
+      });
+      btn.classList.add('bg-pure', 'text-obsidian', 'font-bold');
+      btn.classList.remove('border', 'border-white/15', 'text-graphite');
+
+      const selectedCat = btn.getAttribute('data-cat');
+
+      albumCards.forEach(card => {
+        const cardCat = card.getAttribute('data-category');
+        if (selectedCat === 'TODOS' || cardCat === selectedCat) {
+          gsap.to(card, {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.4,
+            display: 'block',
+            ease: 'power2.out'
+          });
+        } else {
+          gsap.to(card, {
+            autoAlpha: 0,
+            y: 20,
+            duration: 0.3,
+            display: 'none',
+            ease: 'power2.in'
+          });
+        }
+      });
+    });
+  });
+
+  const previewStrips = document.querySelectorAll('.album-preview-strip');
+  previewStrips.forEach(strip => {
+    strip.addEventListener('wheel', (e) => {
+      const wheelEv = e as WheelEvent;
+      if (Math.abs(wheelEv.deltaY) > Math.abs(wheelEv.deltaX)) {
+        wheelEv.preventDefault();
+        strip.scrollLeft += wheelEv.deltaY * 1.5;
+      }
+    }, { passive: false });
+  });
+</script>

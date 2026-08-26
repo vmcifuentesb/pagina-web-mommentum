@@ -1,0 +1,19 @@
+{
+  "brandName": "MOMMENTUM",
+  "tagline": "El arte de congelar el pulso de la vida.",
+  "category": "Fotografía Conceptual y de Autor",
+  "domain": "https://mommentum.ises",
+  "contactEmail": "contacto@mommentum.ises",
+  "socialLinks": {
+    "instagram": "https://www.instagram.com/mommentum.ises/",
+    "threads": "https://www.threads.net/@mommentum.ises"
+  },
+  "colors": {
+    "pureWhite": "#FFFFFF",
+    "galleryOffWhite": "#F4F4F6",
+    "lightGray": "#D1D5DB",
+    "graphite": "#6B7280",
+    "charcoal": "#1F2023",
+    "noir": "#0D0E11"
+  }
+}

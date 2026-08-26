@@ -1,0 +1,112 @@
+---
+import type { PhotoItem } from '../../data/albums';
+
+interface Props {
+  photos: PhotoItem[];
+}
+
+const { photos } = Astro.props;
+---
+
+<div id="filmstrip-wrapper" class="relative w-full py-6 select-none overflow-hidden" data-cursor="pointer">
+  
+  <!-- Subtle Helper Bar -->
+  <div class="w-full px-6 md:px-12 mb-4 flex items-center justify-between font-mono text-xs text-graphite border-b border-white/10 pb-3">
+    <span>TIRA CINEMÁTICA ANALÓGICA CONTINUA ({photos.length} FOTOGRAFÍAS)</span>
+    <span class="hidden sm:inline">USA LA RUEDA DEL RATÓN O LAS TECLAS ← / →</span>
+  </div>
+
+  <!-- Full-Width Horizontal Filmstrip Container -->
+  <div id="filmstrip-scroll-area" class="flex items-center gap-8 overflow-x-auto px-6 md:px-12 py-6 scrollbar-none scroll-smooth">
+    {photos.map((photo, index) => (
+      <div 
+        class="filmstrip-card flex-shrink-0 w-[88vw] sm:w-[720px] md:w-[840px] bg-carbon rounded-xl p-4 md:p-6 border border-white/15 hover:border-white transition-all duration-300 shadow-2xl group cursor-pointer"
+        data-lightbox-photo
+        data-url={photo.url}
+        data-title={photo.title}
+        data-copy={photo.anitaCopy}
+        data-album={photo.albumSlug}
+        data-shutter={photo.shutter}
+        data-aperture={photo.aperture}
+        data-iso={photo.iso}
+        data-dim={photo.dimensions}
+        data-cursor="view"
+      >
+        <!-- Film Sprocket Border Top -->
+        <div class="flex justify-between items-center py-2 px-3 border-b border-white/10 mb-4 font-mono text-[10px] text-graphite">
+          <span class="text-white font-bold">MOMMENTUM // 35MM</span>
+          <span>EXP 0{index + 1} / 0{photos.length}</span>
+        </div>
+
+        <!-- Monumental Large Photo Container -->
+        <div class="relative w-full aspect-[16/10] sm:aspect-[16/9] rounded-lg overflow-hidden bg-obsidian mb-4">
+          <img 
+            src={photo.url} 
+            alt={photo.title} 
+            class="w-full h-full object-cover filter contrast-110 group-hover:scale-105 transition-transform duration-700" 
+            loading="lazy"
+          />
+          <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <span class="px-5 py-2.5 bg-obsidian/90 backdrop-blur-md rounded font-mono text-xs text-white border border-white/30 font-bold">
+              AMPLIAR A PANTALLA COMPLETA ↗
+            </span>
+          </div>
+        </div>
+
+        <!-- Clean Compact Metadata -->
+        <div class="flex items-center justify-between font-mono text-xs pt-1">
+          <div>
+            <h3 class="font-condensed text-2xl font-bold text-white uppercase">{photo.title}</h3>
+            <p class="font-body text-xs text-silver/80 mt-0.5">{photo.anitaCopy}</p>
+          </div>
+          <div class="text-right text-[11px] text-graphite hidden sm:block">
+            <span class="text-white font-bold">{photo.shutter}</span> • <span>{photo.aperture}</span>
+            <div class="text-silver">{photo.iso}</div>
+          </div>
+        </div>
+
+      </div>
+    ))}
+  </div>
+
+</div>
+
+<script>
+  const scrollArea = document.getElementById('filmstrip-scroll-area');
+  const cards = document.querySelectorAll('.filmstrip-card');
+
+  if (scrollArea) {
+    let isWheeling = false;
+
+    // Smooth throttled wheel scroll
+    scrollArea.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (isWheeling) return;
+
+      const delta = e.deltaY || e.deltaX;
+      const scrollStep = 760;
+
+      if (Math.abs(delta) > 15) {
+        isWheeling = true;
+        scrollArea.scrollBy({
+          left: delta > 0 ? scrollStep : -scrollStep,
+          behavior: 'smooth'
+        });
+
+        setTimeout(() => {
+          isWheeling = false;
+        }, 220);
+      }
+    }, { passive: false });
+
+    // Keyboard navigation
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
+        scrollArea.scrollBy({ left: 760, behavior: 'smooth' });
+      }
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
+        scrollArea.scrollBy({ left: -760, behavior: 'smooth' });
+      }
+    });
+  }
+</script>

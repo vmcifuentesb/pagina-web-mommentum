@@ -1,0 +1,288 @@
+---
+import { ALL_PHOTOS } from '../../data/albums';
+---
+
+<div id="creativo-lightbox" class="relative w-full h-screen bg-obsidian overflow-hidden select-none flex flex-col justify-between pt-24 pb-6">
+  
+  <!-- 5000K Diffuse Daylight Glass Surface -->
+  <div class="absolute inset-0 bg-gradient-to-b from-[#14161C] to-[#0A0B0E] pointer-events-none"></div>
+  <div class="absolute inset-6 rounded-2xl bg-pure/[0.02] border border-white/10 shadow-[inset_0_0_120px_rgba(255,255,255,0.02)] pointer-events-none"></div>
+
+  <!-- Top Controls Dock -->
+  <div class="relative z-30 w-full px-6 md:px-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+    <div>
+      <span class="font-mono text-[10px] text-graphite tracking-[0.25em] uppercase">// ESTUDIO CREATIVO • MESA DE LUZ 5000K</span>
+      <h1 class="font-condensed text-3xl sm:text-4xl font-bold uppercase text-white">
+        CREADOR DE MURAL & COLLAGE.
+      </h1>
+      <p class="font-mono text-xs text-silver/70 mt-0.5">
+        ARRASTRA, GIRA Y COMPÓN TU TABLERO CON LAS DIAPOSITIVAS
+      </p>
+    </div>
+
+    <!-- Toolbar Action Buttons -->
+    <div class="flex items-center gap-3">
+      <button id="scatter-slides-btn" class="px-4 py-2 rounded bg-carbon border border-white/10 hover:border-white font-mono text-xs text-white transition-all" data-cursor="pointer">
+        DISPERSAR ↺
+      </button>
+      <button id="reset-slides-btn" class="px-4 py-2 rounded bg-carbon border border-white/10 hover:border-white font-mono text-xs text-white transition-all" data-cursor="pointer">
+        RESETEAR
+      </button>
+      <button id="export-collage-btn" class="px-5 py-2 rounded bg-pure text-obsidian font-mono text-xs font-bold hover:bg-silver transition-all flex items-center gap-2" data-cursor="pointer">
+        <span>↓</span> EXPORTAR COLLAGE (PNG)
+      </button>
+    </div>
+  </div>
+
+  <!-- Interactive Drag Canvas Area -->
+  <div id="lightbox-canvas" class="relative z-20 flex-1 overflow-hidden">
+    <!-- Draggable Photo Slides are rendered here -->
+  </div>
+
+  <!-- Bottom Tray of Available Portfolio Photos -->
+  <div class="relative z-30 w-full px-6 md:px-12 pt-3 border-t border-white/10 flex items-center gap-4 overflow-x-auto">
+    <span class="font-mono text-[10px] text-graphite uppercase whitespace-nowrap">ARRASTRA A LA MESA →</span>
+    <div class="flex items-center gap-3">
+      {ALL_PHOTOS.map((photo) => (
+        <div 
+          class="tray-item flex-shrink-0 w-20 h-16 rounded overflow-hidden border border-white/20 hover:border-white cursor-pointer transition-all hover:scale-105"
+          data-url={photo.url}
+          data-title={photo.title}
+          data-cursor="pointer"
+        >
+          <img src={photo.url} alt={photo.title} class="w-full h-full object-cover" />
+        </div>
+      ))}
+    </div>
+  </div>
+
+</div>
+
+<script>
+  import { ALL_PHOTOS } from '../../data/albums';
+
+  const photos = ALL_PHOTOS;
+  const canvas = document.getElementById('lightbox-canvas');
+  const scatterBtn = document.getElementById('scatter-slides-btn');
+  const resetBtn = document.getElementById('reset-slides-btn');
+  const exportBtn = document.getElementById('export-collage-btn');
+  const trayItems = document.querySelectorAll('.tray-item');
+
+  let activeSlide: HTMLElement | null = null;
+  let highestZ = 100;
+  let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
+
+  interface SlideData {
+    el: HTMLElement;
+    url: string;
+    title: string;
+    rot: number;
+  }
+  const slideRegistry: SlideData[] = [];
+
+  const createSlide = (photo: { url: string; title: string }, x: number, y: number, rot: number) => {
+    if (!canvas) return;
+    const slide = document.createElement('div');
+    slide.className = 'slide-item absolute cursor-grab active:cursor-grabbing p-3 rounded bg-carbon border border-white/20 shadow-2xl transition-shadow select-none group';
+    slide.style.width = '240px';
+    slide.style.left = `${x}px`;
+    slide.style.top = `${y}px`;
+    slide.style.transform = `rotate(${rot}deg)`;
+    slide.style.zIndex = `${++highestZ}`;
+
+    slide.setAttribute('data-rot', `${rot}`);
+    slide.setAttribute('data-url', photo.url);
+    slide.setAttribute('data-title', photo.title);
+
+    slide.innerHTML = `
+      <div class="relative aspect-[4/3] rounded overflow-hidden bg-obsidian mb-2 pointer-events-none">
+        <img src="${photo.url}" alt="${photo.title}" class="w-full h-full object-cover filter contrast-125" crossorigin="anonymous" />
+      </div>
+      <div class="flex items-center justify-between font-mono text-[9px] text-silver/60 pointer-events-none">
+        <span class="truncate max-w-[140px]">${photo.title}</span>
+        <span>4×5 SLIDE</span>
+      </div>
+    `;
+
+    // Dragging Logic
+    const onMouseDown = (e: MouseEvent) => {
+      e.preventDefault();
+      highestZ += 1;
+      slide.style.zIndex = `${highestZ}`;
+      activeSlide = slide;
+      startX = e.clientX;
+      startY = e.clientY;
+      initialLeft = slide.offsetLeft;
+      initialTop = slide.offsetTop;
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!activeSlide) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      activeSlide.style.left = `${initialLeft + dx}px`;
+      activeSlide.style.top = `${initialTop + dy}px`;
+    };
+
+    const onMouseUp = () => {
+      activeSlide = null;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    // Double click to rotate
+    slide.addEventListener('dblclick', () => {
+      const curRot = parseFloat(slide.getAttribute('data-rot') || '0');
+      const nextRot = (curRot + 15) % 360;
+      slide.setAttribute('data-rot', `${nextRot}`);
+      slide.style.transform = `rotate(${nextRot}deg)`;
+    });
+
+    slide.addEventListener('mousedown', onMouseDown);
+    canvas.appendChild(slide);
+    slideRegistry.push({ el: slide, url: photo.url, title: photo.title, rot });
+  };
+
+  const initBoard = () => {
+    if (!canvas) return;
+    canvas.innerHTML = '';
+    slideRegistry.length = 0;
+    const initialPhotos = photos.slice(0, 6);
+    initialPhotos.forEach((p, idx) => {
+      const col = idx % 3;
+      const row = Math.floor(idx / 3);
+      const x = 100 + col * 260 + (Math.random() * 40 - 20);
+      const y = 40 + row * 220 + (Math.random() * 30 - 15);
+      const rot = Math.random() * 16 - 8;
+      createSlide(p, x, y, rot);
+    });
+  };
+
+  initBoard();
+
+  if (resetBtn) resetBtn.addEventListener('click', initBoard);
+
+  if (scatterBtn) scatterBtn.addEventListener('click', () => {
+    if (!canvas) return;
+    const slides = canvas.querySelectorAll('.slide-item');
+    slides.forEach((s) => {
+      const x = Math.random() * (canvas.clientWidth - 280) + 40;
+      const y = Math.random() * (canvas.clientHeight - 240) + 30;
+      const rot = Math.random() * 40 - 20;
+      (s as HTMLElement).style.left = `${x}px`;
+      (s as HTMLElement).style.top = `${y}px`;
+      (s as HTMLElement).style.transform = `rotate(${rot}deg)`;
+      s.setAttribute('data-rot', `${rot}`);
+    });
+  });
+
+  trayItems.forEach((item) => {
+    item.addEventListener('click', () => {
+      if (!canvas) return;
+      const url = item.getAttribute('data-url') || '';
+      const title = item.getAttribute('data-title') || '';
+      const x = canvas.clientWidth / 2 - 120 + (Math.random() * 60 - 30);
+      const y = canvas.clientHeight / 2 - 100 + (Math.random() * 60 - 30);
+      const rot = Math.random() * 20 - 10;
+      createSlide({ url, title }, x, y, rot);
+    });
+  });
+
+  // Export Collage to PNG (Canvas Renderer)
+  if (exportBtn) {
+    exportBtn.addEventListener('click', async () => {
+      if (!canvas) return;
+      exportBtn.textContent = 'GENERANDO PNG...';
+
+      const exportCanvas = document.createElement('canvas');
+      const ctx = exportCanvas.getContext('2d');
+      if (!ctx) return;
+
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      exportCanvas.width = width;
+      exportCanvas.height = height;
+
+      // Draw 5000K darkroom background
+      ctx.fillStyle = '#0D0E11';
+      ctx.fillRect(0, 0, width, height);
+
+      // Subtle light grid
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      // Title watermark
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 20px "Oswald", sans-serif';
+      ctx.fillText('MOMMENTUM // COLLAGE DE AUTOR', 30, height - 30);
+      ctx.fillStyle = '#6B7280';
+      ctx.font = '12px "JetBrains Mono", monospace';
+      ctx.fillText('MESA DE LUZ 5000K • GUATEMALA', 30, height - 14);
+
+      // Get all rendered slides ordered by zIndex
+      const slides = Array.from(canvas.querySelectorAll('.slide-item')) as HTMLElement[];
+      slides.sort((a, b) => parseInt(a.style.zIndex || '0') - parseInt(b.style.zIndex || '0'));
+
+      for (const slide of slides) {
+        const x = slide.offsetLeft;
+        const y = slide.offsetTop;
+        const rot = parseFloat(slide.getAttribute('data-rot') || '0') * (Math.PI / 180);
+        const img = slide.querySelector('img') as HTMLImageElement;
+        const title = slide.getAttribute('data-title') || '';
+
+        const slideW = 240;
+        const slideH = 200;
+
+        ctx.save();
+        ctx.translate(x + slideW / 2, y + slideH / 2);
+        ctx.rotate(rot);
+
+        // Slide Card Body
+        ctx.fillStyle = '#1F2023';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+        ctx.shadowBlur = 15;
+        ctx.fillRect(-slideW / 2, -slideH / 2, slideW, slideH);
+
+        // Border
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(-slideW / 2, -slideH / 2, slideW, slideH);
+
+        // Image
+        if (img && img.complete) {
+          ctx.drawImage(img, -slideW / 2 + 10, -slideH / 2 + 10, slideW - 20, 150);
+        }
+
+        // Caption
+        ctx.fillStyle = '#D1D5DB';
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.fillText(title, -slideW / 2 + 10, slideH / 2 - 12);
+
+        ctx.restore();
+      }
+
+      // Download
+      const link = document.createElement('a');
+      link.download = `mommentum-collage-${Date.now()}.png`;
+      link.href = exportCanvas.toDataURL('image/png');
+      link.click();
+
+      exportBtn.innerHTML = '<span>↓</span> EXPORTAR COLLAGE (PNG)';
+    });
+  }
+</script>

@@ -1,0 +1,98 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PhotoGrid from '../components/gallery/PhotoGrid.astro';
+import PhotoCloud3D from '../components/three/PhotoCloud3D.astro';
+import ContactSheetView from '../components/gallery/ContactSheetView.astro';
+import { PHOTOS } from '../data/portfolio';
+---
+
+<Layout title="Catálogo de Obras & Archivo | MOMMENTUM" description="Archivo completo de piezas fotográficas conceptuales y de autor con múltiples modos de visualización: Galería, Nube 3D y Hoja de Contactos analógica.">
+  <div class="pt-36 pb-32 bg-obsidian text-pure">
+    <div class="max-w-7xl mx-auto px-6 md:px-12">
+      
+      <!-- Catalog Header -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 border-b border-white/10 pb-12">
+        <div>
+          <span class="font-mono text-xs tracking-[0.25em] text-graphite uppercase">// ARCHIVO COMPLETO</span>
+          <h1 class="font-condensed text-5xl sm:text-7xl md:text-8xl uppercase font-bold tracking-tight text-pure mt-2 leading-none">
+            CATÁLOGO DE OBRAS.
+          </h1>
+          <p class="font-body text-base text-silver/80 mt-4 max-w-xl">
+            Explora el inventario de piezas individuales. Selecciona tu perspectiva de visualización preferida.
+          </p>
+        </div>
+
+        <!-- View Mode Switcher Controls -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 font-mono text-xs">
+          <span class="text-graphite uppercase text-[10px] tracking-widest">MODO DE VISTA:</span>
+          <div class="flex items-center gap-1.5 p-1 rounded-lg bg-carbon border border-white/10">
+            <button id="btn-view-grid" class="view-tab-btn active px-4 py-2 rounded bg-pure text-obsidian font-bold transition-all text-xs" data-cursor="pointer">
+              01/ GALERÍA
+            </button>
+            <button id="btn-view-cloud" class="view-tab-btn px-4 py-2 rounded text-graphite hover:text-pure transition-all text-xs" data-cursor="pointer">
+              02/ NUBE 3D
+            </button>
+            <button id="btn-view-sheet" class="view-tab-btn px-4 py-2 rounded text-graphite hover:text-pure transition-all text-xs" data-cursor="pointer">
+              03/ CONTACT SHEET
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Container 1: Masonry Grid -->
+      <div id="view-grid-container" class="transition-all duration-300">
+        <PhotoGrid />
+      </div>
+
+      <!-- View Container 2: 3D Photo Cloud -->
+      <div id="view-cloud-container" class="hidden transition-all duration-300">
+        <PhotoCloud3D />
+      </div>
+
+      <!-- View Container 3: Analog Contact Sheet -->
+      <div id="view-sheet-container" class="hidden transition-all duration-300">
+        <ContactSheetView />
+      </div>
+
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const btnGrid = document.getElementById('btn-view-grid');
+  const btnCloud = document.getElementById('btn-view-cloud');
+  const btnSheet = document.getElementById('btn-view-sheet');
+
+  const viewGrid = document.getElementById('view-grid-container');
+  const viewCloud = document.getElementById('view-cloud-container');
+  const viewSheet = document.getElementById('view-sheet-container');
+
+  const tabs = [btnGrid, btnCloud, btnSheet];
+  const views = [viewGrid, viewCloud, viewSheet];
+
+  const switchView = (activeIdx: number) => {
+    tabs.forEach((tab, i) => {
+      if (!tab) return;
+      if (i === activeIdx) {
+        tab.classList.add('bg-pure', 'text-obsidian', 'font-bold');
+        tab.classList.remove('text-graphite');
+      } else {
+        tab.classList.remove('bg-pure', 'text-obsidian', 'font-bold');
+        tab.classList.add('text-graphite');
+      }
+    });
+
+    views.forEach((view, i) => {
+      if (!view) return;
+      if (i === activeIdx) {
+        view.classList.remove('hidden');
+      } else {
+        view.classList.add('hidden');
+      }
+    });
+  };
+
+  if (btnGrid) btnGrid.addEventListener('click', () => switchView(0));
+  if (btnCloud) btnCloud.addEventListener('click', () => switchView(1));
+  if (btnSheet) btnSheet.addEventListener('click', () => switchView(2));
+</script>

@@ -1,0 +1,72 @@
+---
+import { PHOTOS } from '../../data/portfolio';
+---
+
+<div class="relative w-full bg-[#08080A] p-6 md:p-12 rounded-xl border border-white/10 font-mono select-none overflow-x-auto">
+  
+  <!-- Film Sheet Header -->
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 mb-8 border-b border-white/10 text-xs text-graphite gap-4">
+    <div class="flex items-center gap-4">
+      <span class="px-3 py-1 bg-white/10 text-pure text-[10px] tracking-widest uppercase font-bold rounded">
+        PROOF CONTACT SHEET
+      </span>
+      <span class="text-silver">ROLL NO. 2026-MOM-01</span>
+    </div>
+    <div class="flex items-center gap-6 text-[10px] tracking-widest text-graphite uppercase">
+      <span>EMULSIÓN: ILFORD HP5 PLUS 400</span>
+      <span>REVELADO: D-76 1:1 • 20°C</span>
+    </div>
+  </div>
+
+  <!-- Film Strips Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {PHOTOS.map((photo) => (
+      <div 
+        class="group relative bg-[#121316] p-4 rounded border border-white/10 hover:border-white/40 transition-all duration-300 cursor-pointer"
+        data-photo-id={photo.id}
+        data-cursor="view"
+      >
+        <!-- Top Sprocket Holes Simulation -->
+        <div class="flex justify-between items-center py-1 text-[8px] text-graphite tracking-tighter">
+          <span>■ ■ ■ ■ ■</span>
+          <span class="font-bold text-silver">FRAME {photo.frameNumber}</span>
+          <span>■ ■ ■ ■ ■</span>
+        </div>
+
+        <!-- Frame Negative Image -->
+        <div class="relative aspect-[4/5] my-2 overflow-hidden bg-obsidian border border-white/5">
+          <img 
+            src={photo.imageUrl} 
+            alt={photo.title}
+            class="w-full h-full object-cover filter grayscale contrast-125 group-hover:contrast-100 transition-all duration-300"
+            loading="lazy"
+          />
+
+          <!-- Grease Pencil / China Marker Crop Marks (Simulated) -->
+          <div class="absolute inset-2 border border-white/30 pointer-events-none group-hover:border-pure transition-colors">
+            <span class="absolute -top-2 left-2 px-1 bg-obsidian text-[8px] text-silver uppercase">
+              SELECTED
+            </span>
+          </div>
+
+          <!-- Red Chinagraph Check mark on hover -->
+          <div class="absolute bottom-2 right-2 text-xs text-pure font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+            ✓ EXIF
+          </div>
+        </div>
+
+        <!-- Bottom Film Stamp -->
+        <div class="flex justify-between items-center pt-1 text-[9px] text-graphite uppercase">
+          <span class="text-silver truncate max-w-[150px]">{photo.title}</span>
+          <span>{photo.exif.aperture} • {photo.exif.shutterSpeed}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <!-- Bottom Sheet Footer -->
+  <div class="mt-8 pt-6 border-t border-white/10 flex items-center justify-between text-[10px] text-graphite">
+    <p>ARCHIVO MAESTRO • MOMMENTUM STUDIO</p>
+    <p>TOTAL PIEZAS EN HOJA: {PHOTOS.length}</p>
+  </div>
+</div>

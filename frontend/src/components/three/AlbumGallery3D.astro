@@ -1,0 +1,286 @@
+---
+import { ALBUMS } from '../../data/albums';
+---
+
+<section id="albumes-3d" class="relative w-full py-24 bg-obsidian text-pure overflow-hidden border-t border-white/10">
+  <!-- Section Title and Header -->
+  <div class="w-full px-6 md:px-12 mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div>
+      <span class="font-mono text-xs tracking-[0.25em] text-graphite uppercase">// SALA DE ÁLBUMES 3D</span>
+      <h2 class="font-condensed text-4xl sm:text-6xl md:text-7xl uppercase font-bold tracking-tight text-pure mt-2">
+        ÁLBUMES DE FOTOS
+      </h2>
+    </div>
+    <div class="flex items-center gap-4">
+      <p class="font-mono text-xs text-graphite hidden md:block">
+        ARRASTRA PARA ROTAR • CLIC EN UN ÁLBUM PARA ENTRAR
+      </p>
+      <div class="flex items-center gap-2">
+        <button id="prev-3d-btn" class="w-12 h-12 rounded border border-white/15 hover:border-white flex items-center justify-center text-pure hover:bg-white/5 transition-colors" aria-label="Anterior" data-cursor="pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+        </button>
+        <button id="next-3d-btn" class="w-12 h-12 rounded border border-white/15 hover:border-white flex items-center justify-center text-pure hover:bg-white/5 transition-colors" aria-label="Siguiente" data-cursor="pointer">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D Interactive WebGL Stage -->
+  <div class="relative w-full h-[540px] md:h-[620px] cursor-grab active:cursor-grabbing select-none" data-cursor="drag">
+    <div id="album-webgl-canvas" class="w-full h-full"></div>
+
+    <!-- Active Series Information Overlay -->
+    <div class="absolute bottom-6 left-6 md:left-12 max-w-lg p-6 rounded bg-carbon/95 backdrop-blur-xl border border-white/15 pointer-events-auto transition-all duration-300">
+      <div class="flex items-center gap-3 font-mono text-xs text-graphite mb-1">
+        <span id="active-series-num" class="text-white font-bold">ÁLBUM 01</span>
+        <span>•</span>
+        <span id="active-series-count">{ALBUMS[0].photos.length} FOTOS</span>
+        <span>•</span>
+        <span id="active-series-cat">{ALBUMS[0].category}</span>
+      </div>
+      <h3 id="active-series-title" class="font-condensed text-2xl md:text-3xl font-bold uppercase text-white">
+        {ALBUMS[0].title}
+      </h3>
+      <p id="active-series-desc" class="font-body text-xs md:text-sm text-silver/80 mt-2 line-clamp-2">
+        {ALBUMS[0].description}
+      </p>
+      <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+        <span class="font-mono text-[10px] text-graphite uppercase">
+          PRESENTACIÓN: {ALBUMS[0].styleName}
+        </span>
+        <a id="active-series-link" href={`/portafolio/${ALBUMS[0].slug}`} class="font-mono text-xs text-pure font-bold hover:underline" data-cursor="pointer">
+          ENTRAR AL ÁLBUM ↗
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import * as THREE from 'three';
+  import gsap from 'gsap';
+  import { ALBUMS } from '../../data/albums';
+
+  const container = document.getElementById('album-webgl-canvas');
+  const numElem = document.getElementById('active-series-num');
+  const countElem = document.getElementById('active-series-count');
+  const catElem = document.getElementById('active-series-cat');
+  const titleElem = document.getElementById('active-series-title');
+  const descElem = document.getElementById('active-series-desc');
+  const linkElem = document.getElementById('active-series-link') as HTMLAnchorElement;
+  const prevBtn = document.getElementById('prev-3d-btn');
+  const nextBtn = document.getElementById('next-3d-btn');
+
+  if (container) {
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0D0E11, 0.03);
+
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+    camera.position.set(0, 0, 16);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    container.appendChild(renderer.domElement);
+
+    const carouselGroup = new THREE.Group();
+    scene.add(carouselGroup);
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+    scene.add(ambientLight);
+
+    const textureLoader = new THREE.TextureLoader();
+    const itemsCount = ALBUMS.length;
+    const radius = 9.5;
+    const planes: THREE.Mesh[] = [];
+
+    const planeW = 5.4;
+    const planeH = 7.2;
+    const planeAspect = planeW / planeH; // 0.75
+
+    ALBUMS.forEach((album, i) => {
+      const angle = (i / itemsCount) * Math.PI * 2;
+      const cardGeometry = new THREE.PlaneGeometry(planeW, planeH);
+      
+      const texture = textureLoader.load(album.coverImage, (tex) => {
+        const img = tex.image;
+        if (img) {
+          const imageAspect = img.width / img.height;
+          tex.wrapS = THREE.ClampToEdgeWrapping;
+          tex.wrapT = THREE.ClampToEdgeWrapping;
+
+          // Object-fit: cover algorithm in WebGL texture UV mapping (zero distortion/stretching)
+          if (imageAspect > planeAspect) {
+            tex.repeat.set(planeAspect / imageAspect, 1);
+            tex.offset.set((1 - planeAspect / imageAspect) / 2, 0);
+          } else {
+            tex.repeat.set(1, imageAspect / planeAspect);
+            tex.offset.set(0, (1 - imageAspect / planeAspect) / 2);
+          }
+          renderer.render(scene, camera);
+        }
+      });
+
+      const cardMaterial = new THREE.MeshBasicMaterial({
+        map: texture,
+        side: THREE.DoubleSide,
+      });
+
+      const mesh = new THREE.Mesh(cardGeometry, cardMaterial);
+      mesh.position.x = Math.sin(angle) * radius;
+      mesh.position.z = Math.cos(angle) * radius;
+      mesh.rotation.y = angle;
+      mesh.userData = { index: i, slug: album.slug };
+
+      carouselGroup.add(mesh);
+      planes.push(mesh);
+    });
+
+    let isDragging = false;
+    let dragStartX = 0;
+    let previousMouseX = 0;
+    let targetRotation = 0;
+    let currentRotation = 0;
+    let activeIndex = 0;
+    let totalDragDistance = 0;
+
+    const updateActiveUI = (index: number) => {
+      const item = ALBUMS[index];
+      if (!item) return;
+
+      if (numElem) numElem.textContent = `ÁLBUM 0${index + 1}`;
+      if (countElem) countElem.textContent = `${item.photos.length} FOTOS`;
+      if (catElem) catElem.textContent = item.category;
+      if (titleElem) titleElem.textContent = item.title;
+      if (descElem) descElem.textContent = item.description;
+      if (linkElem) linkElem.href = `/portafolio/${item.slug}`;
+    };
+
+    const snapToNearest = () => {
+      const step = (Math.PI * 2) / itemsCount;
+      const nearestAngle = Math.round(targetRotation / step) * step;
+
+      gsap.to({ val: targetRotation }, {
+        val: nearestAngle,
+        duration: 0.5,
+        ease: 'power2.out',
+        onUpdate: function() {
+          targetRotation = this.targets()[0].val;
+        }
+      });
+
+      const calcIndex = ((Math.round(-nearestAngle / step) % itemsCount) + itemsCount) % itemsCount;
+      activeIndex = calcIndex;
+      updateActiveUI(activeIndex);
+    };
+
+    const rotateToIndex = (newIndex: number) => {
+      const step = (Math.PI * 2) / itemsCount;
+      targetRotation = -newIndex * step;
+      activeIndex = ((newIndex % itemsCount) + itemsCount) % itemsCount;
+      updateActiveUI(activeIndex);
+    };
+
+    container.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      dragStartX = e.clientX;
+      previousMouseX = e.clientX;
+      totalDragDistance = 0;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        snapToNearest();
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const deltaX = e.clientX - previousMouseX;
+      totalDragDistance += Math.abs(deltaX);
+      targetRotation += deltaX * 0.005;
+      previousMouseX = e.clientX;
+    });
+
+    container.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        dragStartX = e.touches[0].clientX;
+        previousMouseX = e.touches[0].clientX;
+        totalDragDistance = 0;
+      }
+    });
+
+    window.addEventListener('touchend', () => {
+      if (isDragging) {
+        isDragging = false;
+        snapToNearest();
+      }
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (!isDragging || e.touches.length !== 1) return;
+      const deltaX = e.touches[0].clientX - previousMouseX;
+      totalDragDistance += Math.abs(deltaX);
+      targetRotation += deltaX * 0.005;
+      previousMouseX = e.touches[0].clientX;
+    });
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    container.addEventListener('click', (e) => {
+      if (totalDragDistance > 10) return;
+      const rect = container.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(planes);
+
+      if (intersects.length > 0) {
+        const clickedPlane = intersects[0].object;
+        const clickedIdx = clickedPlane.userData.index;
+        const slug = clickedPlane.userData.slug;
+        if (clickedIdx === activeIndex) {
+          window.location.href = `/portafolio/${slug}`;
+        } else {
+          rotateToIndex(clickedIdx);
+        }
+      }
+    });
+
+    if (prevBtn) prevBtn.addEventListener('click', () => rotateToIndex(activeIndex - 1));
+    if (nextBtn) nextBtn.addEventListener('click', () => rotateToIndex(activeIndex + 1));
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      currentRotation += (targetRotation - currentRotation) * 0.08;
+      carouselGroup.rotation.y = currentRotation;
+
+      planes.forEach((plane) => {
+        const worldPos = new THREE.Vector3();
+        plane.getWorldPosition(worldPos);
+        const dist = worldPos.distanceTo(camera.position);
+        const normalizedDist = 1 - Math.min(Math.max((dist - 7) / 18, 0), 1);
+        (plane.material as THREE.MeshBasicMaterial).opacity = Math.max(normalizedDist, 0.4);
+      });
+
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+  }
+</script>

@@ -1,0 +1,69 @@
+---
+import CustomCursor from '../components/ui/CustomCursor.astro';
+import PhotoModal from '../components/gallery/PhotoModal.astro';
+import TunnelPreloader from '../components/intro/TunnelPreloader.astro';
+import PageTransitionShutter from '../components/ui/PageTransitionShutter.astro';
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  isHome?: boolean;
+}
+
+const {
+  title = 'MOMMENTUM // Fotografía & Momentos',
+  description = 'Galería de arte y retratos con salas 3D inmersivas y archivo fotográfico.',
+  isHome = false,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="es" class="scroll-smooth bg-obsidian text-pure selection:bg-pure selection:text-obsidian">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-6ERQXT0EH4"></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-6ERQXT0EH4');
+    </script>
+  </head>
+  <body class="min-h-screen bg-obsidian text-pure overflow-x-hidden font-body antialiased flex flex-col justify-between">
+    
+    <!-- Cinematic Preloader (Only shown on Home or replay) -->
+    {isHome && <TunnelPreloader />}
+
+    <!-- Global Shutter Page Transition Effect -->
+    <PageTransitionShutter />
+
+    <!-- Optical Lens Crosshair Custom Cursor -->
+    <CustomCursor />
+
+    <!-- Global Lightbox Modal -->
+    <PhotoModal />
+
+    <!-- Universal Header -->
+    <Header />
+
+    <!-- Main Dynamic Content Slot -->
+    <main class="w-full flex-grow">
+      <slot />
+    </main>
+
+    <!-- Universal Footer -->
+    <Footer />
+
+  </body>
+</html>

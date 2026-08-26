@@ -1,0 +1,144 @@
+---
+// Preloader Cinemático: Túnel 3D Puro (5s) -> Transición Suave al Inicio
+---
+
+<div id="cinematic-preloader" class="fixed inset-0 z-[99999] bg-[#050608] flex items-center justify-center select-none overflow-hidden">
+  
+  <!-- 3D Three.js Hyperspace Photo Tunnel Canvas -->
+  <div id="preloader-tunnel-canvas" class="absolute inset-0 z-10"></div>
+
+  <!-- Clean Minimalist HUD Overlay (No technical jargon) -->
+  <div id="preloader-hud" class="absolute inset-0 z-30 pointer-events-none p-6 md:p-10 flex flex-col justify-between">
+    <div class="flex items-center justify-between font-mono text-xs text-white/70">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-pure animate-ping"></span>
+        <span class="font-bold tracking-widest uppercase">MOMMENTUM</span>
+      </div>
+      <div>
+        <span id="preloader-timer" class="font-bold text-white font-mono">5.0s</span>
+      </div>
+    </div>
+
+    <!-- Center Brand Watermark -->
+    <div id="center-hud-brand" class="text-center transition-opacity duration-300">
+      <h2 class="font-condensed text-5xl sm:text-7xl font-bold uppercase tracking-widest text-white drop-shadow-2xl">
+        MOMMENTUM
+      </h2>
+      <p id="preloader-subtext" class="font-mono text-xs text-silver/70 tracking-widest uppercase mt-2">
+        CARGANDO GALERÍA
+      </p>
+    </div>
+
+    <div class="flex items-center justify-between font-mono text-[10px] text-white/40">
+      <span>SERIES 2026</span>
+      <button id="skip-intro-btn" class="pointer-events-auto px-4 py-1.5 rounded bg-white/10 hover:bg-white text-white hover:text-black transition-all">
+        SALTAR INTRO [ESC] ↗
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  import * as THREE from 'three';
+  import { ALL_PHOTOS } from '../../data/albums';
+
+  const preloader = document.getElementById('cinematic-preloader');
+  const tunnelContainer = document.getElementById('preloader-tunnel-canvas');
+  const timerElem = document.getElementById('preloader-timer');
+  const skipBtn = document.getElementById('skip-intro-btn');
+
+  let hasFinished = false;
+  let animId: number;
+
+  const finishIntro = () => {
+    if (hasFinished) return;
+    hasFinished = true;
+    if (animId) cancelAnimationFrame(animId);
+    if (preloader) {
+      preloader.style.transition = 'opacity 0.8s ease-out';
+      preloader.style.opacity = '0';
+      setTimeout(() => {
+        preloader.style.display = 'none';
+      }, 800);
+    }
+  };
+
+  // Hard Failsafe (5.5s)
+  setTimeout(() => {
+    finishIntro();
+  }, 5500);
+
+  if (skipBtn) skipBtn.addEventListener('click', finishIntro);
+  window.addEventListener('keydown', (e) => { if (e.key === 'Escape') finishIntro(); });
+
+  const photoUrls = ALL_PHOTOS.slice(0, 18).map(p => p.url);
+
+  if (tunnelContainer) {
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x050608, 0.05);
+
+    const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 100);
+    camera.position.set(0, 0, 10);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    tunnelContainer.appendChild(renderer.domElement);
+
+    const textureLoader = new THREE.TextureLoader();
+    const photoMeshes: THREE.Mesh[] = [];
+    const photoCount = Math.max(photoUrls.length, 12);
+
+    for (let i = 0; i < photoCount; i++) {
+      const geo = new THREE.PlaneGeometry(2.4, 1.6);
+      const mat = new THREE.MeshBasicMaterial({
+        map: textureLoader.load(photoUrls[i % photoUrls.length]),
+        side: THREE.DoubleSide,
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+
+      const angle = (i / photoCount) * Math.PI * 2;
+      const radius = 3.2;
+      mesh.position.x = Math.cos(angle) * radius;
+      mesh.position.y = Math.sin(angle) * radius;
+      mesh.position.z = -i * 5;
+      mesh.rotation.z = angle + Math.PI / 2;
+
+      scene.add(mesh);
+      photoMeshes.push(mesh);
+    }
+
+    let startTime = performance.now();
+
+    const animate = (now: number) => {
+      if (hasFinished) return;
+      animId = requestAnimationFrame(animate);
+      const elapsed = (now - startTime) / 1000;
+
+      if (elapsed < 5.0) {
+        const remaining = Math.max(0, 5.0 - elapsed).toFixed(1);
+        if (timerElem) timerElem.textContent = `${remaining}s`;
+
+        photoMeshes.forEach((mesh) => {
+          mesh.position.z += 0.22;
+          if (mesh.position.z > 12) {
+            mesh.position.z -= photoCount * 5;
+          }
+        });
+        camera.rotation.z += 0.003;
+        renderer.render(scene, camera);
+      } else {
+        finishIntro();
+      }
+    };
+
+    animate(startTime);
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  }
+</script>

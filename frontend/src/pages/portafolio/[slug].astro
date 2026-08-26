@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FilmstripGallery from '../../components/portfolio/FilmstripGallery.astro';
+import AccordionGallery from '../../components/portfolio/AccordionGallery.astro';
+import BrutalistGallery from '../../components/portfolio/BrutalistGallery.astro';
+import ParallaxGallery from '../../components/portfolio/ParallaxGallery.astro';
+import { ALBUMS } from '../../data/albums';
+
+export async function getStaticPaths() {
+  return ALBUMS.map((album) => ({
+    params: { slug: album.slug },
+    props: { album },
+  }));
+}
+
+const { album } = Astro.props;
+---
+
+<BaseLayout title={`${album.title} // Álbumes MOMMENTUM`}>
+  <div class="pt-24 pb-20 bg-obsidian text-pure min-h-screen w-full">
+    
+    <!-- Compact Sleek Album Header Full Width -->
+    <div class="w-full px-6 md:px-12 mb-4 border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <a href="/portafolio" class="font-mono text-[11px] text-graphite hover:text-white mb-1 block" data-cursor="pointer">
+          ← VOLVER A TODOS LOS ÁLBUMES
+        </a>
+        <div class="flex items-center gap-3">
+          <h1 class="font-condensed text-3xl sm:text-4xl md:text-5xl font-bold uppercase text-white tracking-tight">
+            {album.title}.
+          </h1>
+          <span class="font-mono text-xs text-silver/70 border-l border-white/20 pl-3 uppercase">
+            {album.photos.length} FOTOS • {album.category}
+          </span>
+        </div>
+      </div>
+      
+      <p class="font-body text-xs text-silver/70 max-w-sm hidden md:block">
+        {album.description}
+      </p>
+    </div>
+
+    <!-- Render the album's unique differentiated presentation style -->
+    {album.slug === 'caravana-del-zorro' && (
+      <FilmstripGallery photos={album.photos} />
+    )}
+
+    {(album.slug === 'sesion-andy' || album.slug === 'ruby') && (
+      <AccordionGallery photos={album.photos} />
+    )}
+
+    {(album.slug === 'antigua-guatemala' || album.slug === 'familia-erick') && (
+      <ParallaxGallery photos={album.photos} />
+    )}
+
+    {(album.slug === 'semana-santa' || album.slug === 'sesion-embarazada' || album.slug === 'sesi-n-embarazada') && (
+      <BrutalistGallery photos={album.photos} />
+    )}
+
+    <!-- Navigation Footer Full Width -->
+    <div class="w-full px-6 md:px-12 mt-8 pt-6 border-t border-white/10 flex items-center justify-between font-mono text-xs">
+      <a href="/portafolio" class="text-silver hover:text-white flex items-center gap-2" data-cursor="pointer">
+        <span>←</span> VOLVER AL PORTAFOLIO DE ÁLBUMES
+      </a>
+      <a href="/museo" class="text-white hover:underline font-bold" data-cursor="pointer">
+        VER SALA EN EL MUSEO 3D ↗
+      </a>
+    </div>
+
+  </div>
+</BaseLayout>

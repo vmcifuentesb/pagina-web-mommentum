@@ -1,0 +1,182 @@
+---
+import { ALL_PHOTOS } from '../../data/albums';
+
+// 1. Deduplicate photos strictly by URL
+const seenUrls = new Set<string>();
+const uniquePhotos = ALL_PHOTOS.filter(photo => {
+  if (seenUrls.has(photo.url)) return false;
+  seenUrls.add(photo.url);
+  return true;
+});
+
+// 2. Arrange unique photos in wide concentric orbits that surround the central name with a clean halo
+const rings = [
+  { count: 6, radius: 400 },
+  { count: 10, radius: 660 },
+  { count: 14, radius: 920 },
+];
+
+let photoCounter = 0;
+const muralPhotos: Array<typeof uniquePhotos[0] & { x: number; y: number }> = [];
+
+rings.forEach(ring => {
+  for (let i = 0; i < ring.count && photoCounter < uniquePhotos.length; i++) {
+    const photo = uniquePhotos[photoCounter++];
+    const angle = (i / ring.count) * Math.PI * 2;
+    const x = Math.cos(angle) * ring.radius;
+    const y = Math.sin(angle) * ring.radius;
+    muralPhotos.push({
+      ...photo,
+      x,
+      y
+    });
+  }
+});
+---
+
+<div id="mural-viewport" class="relative w-full h-screen bg-[#07080A] overflow-hidden select-none cursor-grab active:cursor-grabbing" data-cursor="drag">
+  
+  <!-- Canvas HUD Overlay Top Left -->
+  <div class="fixed top-24 left-6 md:left-12 z-30 pointer-events-none font-mono text-xs text-graphite max-w-sm">
+    <a href="/" class="text-graphite hover:text-white mb-1 block pointer-events-auto" data-cursor="pointer">← VOLVER AL INICIO</a>
+    <span class="text-white font-bold block uppercase tracking-[0.25em]">// MURAL DE FOTOGRAMAS</span>
+    <p class="mt-1 text-silver/70">RUEDA DEL RATÓN PARA ZOOM • ARRASTRA PARA DESPLAZAR</p>
+  </div>
+
+  <!-- Color Mode Toggle Switch (Top Right) -->
+  <div class="fixed top-24 right-6 md:right-12 z-30 flex items-center gap-3 font-mono text-xs">
+    <div class="flex items-center gap-1 bg-carbon p-1 rounded border border-white/15">
+      <button id="btn-bw-mode" class="px-3 py-1.5 rounded bg-pure text-obsidian font-bold transition-all text-[11px]" data-cursor="pointer">
+        BLANCO Y NEGRO
+      </button>
+      <button id="btn-color-mode" class="px-3 py-1.5 rounded text-graphite hover:text-pure transition-all text-[11px]" data-cursor="pointer">
+        COLOR REAL
+      </button>
+    </div>
+    <span id="mural-zoom-level" class="bg-carbon px-2.5 py-1.5 rounded text-silver font-bold border border-white/10 text-[11px]">
+      100%
+    </span>
+  </div>
+
+  <!-- Infinite Draggable & Zoomable Space Canvas -->
+  <div id="mural-universe" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[3000px] h-[3000px] transform-gpu origin-center transition-transform duration-75">
+    
+    <!-- Central Brand Name with Wide Clear Halo -->
+    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center pointer-events-none z-10 w-72 h-72 rounded-full bg-obsidian/90 backdrop-blur-md border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.9)]">
+      <span class="font-condensed text-4xl sm:text-5xl font-bold uppercase tracking-[0.25em] text-white">
+        MOMMENTUM
+      </span>
+      <span class="font-mono text-[9px] text-graphite uppercase tracking-[0.25em] mt-1">
+        FOTOGRAFÍAS
+      </span>
+    </div>
+
+    <!-- Orbiting Unique Photos (Surrounding the center without covering it) -->
+    {muralPhotos.map((photo) => (
+      <div 
+        class="mural-photo-node absolute cursor-pointer transition-transform duration-300 hover:scale-110 z-20 group"
+        style={`left: calc(50% + ${photo.x}px); top: calc(50% + ${photo.y}px); transform: translate(-50%, -50%);`}
+        data-lightbox-photo
+        data-url={photo.url}
+        data-title={photo.title}
+        data-copy={photo.anitaCopy}
+        data-album={photo.category}
+        data-shutter={photo.shutter}
+        data-aperture={photo.aperture}
+        data-iso={photo.iso}
+        data-dim={photo.dimensions}
+        data-cursor="view"
+      >
+        <div class="w-48 sm:w-56 aspect-[4/3] rounded overflow-hidden p-2 bg-carbon border border-white/15 group-hover:border-white shadow-2xl transition-all">
+          <img 
+            src={photo.url} 
+            alt={photo.title} 
+            class="mural-img w-full h-full object-cover filter grayscale contrast-125 transition-all duration-500" 
+            loading="lazy"
+          />
+        </div>
+        <div class="mt-1 text-center font-mono text-[9px] text-silver/70 group-hover:text-white truncate max-w-[220px]">
+          {photo.title}
+        </div>
+      </div>
+    ))}
+
+  </div>
+
+</div>
+
+<script>
+  const viewport = document.getElementById('mural-viewport');
+  const universe = document.getElementById('mural-universe');
+  const zoomLevelElem = document.getElementById('mural-zoom-level');
+  const btnBw = document.getElementById('btn-bw-mode');
+  const btnColor = document.getElementById('btn-color-mode');
+  const muralImages = document.querySelectorAll('.mural-img');
+
+  if (viewport && universe) {
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let posX = 0, posY = 0;
+    let scale = 1.0;
+
+    const minScale = 0.45;
+    const maxScale = 2.0;
+
+    const updateTransform = () => {
+      universe.style.transform = `translate3d(calc(-50% + ${posX}px), calc(-50% + ${posY}px), 0) scale(${scale})`;
+      if (zoomLevelElem) {
+        zoomLevelElem.textContent = `${Math.round(scale * 100)}%`;
+      }
+    };
+
+    // Pan with Mouse Drag
+    viewport.addEventListener('mousedown', (e) => {
+      if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
+      isDragging = true;
+      startX = e.clientX - posX;
+      startY = e.clientY - posY;
+    });
+
+    window.addEventListener('mouseup', () => { isDragging = false; });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      posX = e.clientX - startX;
+      posY = e.clientY - startY;
+      updateTransform();
+    });
+
+    // Zoom with Mouse Wheel
+    viewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+      scale = Math.max(minScale, Math.min(maxScale, scale * zoomFactor));
+      updateTransform();
+    }, { passive: false });
+
+    // Color Mode Switcher
+    if (btnBw && btnColor) {
+      btnBw.addEventListener('click', () => {
+        btnBw.classList.add('bg-pure', 'text-obsidian', 'font-bold');
+        btnBw.classList.remove('text-graphite');
+        btnColor.classList.remove('bg-pure', 'text-obsidian', 'font-bold');
+        btnColor.classList.add('text-graphite');
+
+        muralImages.forEach((img) => {
+          img.classList.add('grayscale');
+        });
+      });
+
+      btnColor.addEventListener('click', () => {
+        btnColor.classList.add('bg-pure', 'text-obsidian', 'font-bold');
+        btnColor.classList.remove('text-graphite');
+        btnBw.classList.remove('bg-pure', 'text-obsidian', 'font-bold');
+        btnBw.classList.add('text-graphite');
+
+        muralImages.forEach((img) => {
+          img.classList.remove('grayscale');
+        });
+      });
+    }
+  }
+</script>

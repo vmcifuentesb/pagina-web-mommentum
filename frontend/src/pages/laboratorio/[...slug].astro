@@ -1,0 +1,60 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: post,
+  }));
+}
+
+const post = Astro.props;
+const { Content } = await post.render();
+---
+
+<Layout title={`${post.data.title} | Laboratorio MOMMENTUM`} description={post.data.description}>
+  <article class="max-w-4xl mx-auto px-6 md:px-12 pt-40 pb-32 text-pure">
+    
+    <!-- Back Button -->
+    <a href="/laboratorio" class="inline-flex items-center gap-2 font-mono text-xs text-graphite hover:text-pure transition-colors mb-12" data-cursor="pointer">
+      <span>←</span>
+      <span>VOLVER AL LABORATORIO</span>
+    </a>
+
+    <!-- Header -->
+    <div class="border-b border-white/10 pb-8 mb-12">
+      <div class="flex items-center gap-4 font-mono text-xs text-graphite tracking-widest uppercase mb-4">
+        <span>{new Date(post.data.pubDate).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+        <span>•</span>
+        <span>AUTOR: {post.data.author}</span>
+        <span>•</span>
+        <span>NOTA TÉCNICA / ENSAYO</span>
+      </div>
+
+      <h1 class="font-condensed text-4xl sm:text-6xl md:text-7xl font-bold uppercase tracking-tight text-pure leading-tight">
+        {post.data.title}
+      </h1>
+
+      <p class="font-body text-base md:text-lg text-silver/90 mt-6 leading-relaxed">
+        {post.data.description}
+      </p>
+    </div>
+
+    <!-- Prose Content -->
+    <div class="prose prose-invert max-w-none font-body text-silver/90 leading-relaxed space-y-6 text-base md:text-lg">
+      <Content />
+    </div>
+
+    <!-- Footer of article -->
+    <div class="mt-20 pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-6 font-mono text-xs">
+      <div class="text-graphite">
+        <span>MOMMENTUM STUDIO • REGISTRO DE LABORATORIO</span>
+      </div>
+      <a href="https://www.instagram.com/mommentum.ises/" target="_blank" rel="noopener noreferrer" class="px-6 py-3 bg-pure text-obsidian font-condensed tracking-widest text-xs uppercase font-bold hover:bg-gallery transition-all" data-cursor="pointer">
+        DISCUTIR EN INSTAGRAM
+      </a>
+    </div>
+  </article>
+</Layout>

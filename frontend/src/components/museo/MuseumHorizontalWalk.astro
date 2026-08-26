@@ -1,0 +1,475 @@
+---
+import { ALBUMS } from '../../data/albums';
+
+// Only 1 BEST PHOTO per album for the curated museum gallery
+const museumMasterpieces = ALBUMS.map((album, idx) => ({
+  index: idx,
+  id: album.id,
+  title: album.title,
+  albumSlug: album.slug,
+  category: album.category,
+  photoUrl: album.bestPhoto.url,
+  description: album.description,
+  totalPhotos: album.photos.length,
+  shutter: album.bestPhoto.shutter,
+  aperture: album.bestPhoto.aperture,
+  iso: album.bestPhoto.iso,
+  dimensions: album.bestPhoto.dimensions,
+  anitaCopy: album.bestPhoto.anitaCopy
+}));
+---
+
+<div id="museum-viewport" class="relative w-full h-screen bg-[#07080B] overflow-hidden select-none cursor-grab active:cursor-grabbing" data-cursor="drag">
+  
+  <!-- Three.js 3D Master Canvas -->
+  <div id="museum-3d-canvas" class="w-full h-full"></div>
+
+  <!-- Top Header & Masterpiece Selector Tabs Full Width -->
+  <div class="fixed top-24 left-6 right-6 md:left-12 md:right-12 z-30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pointer-events-none">
+    <div>
+      <a href="/" class="font-mono text-xs text-graphite hover:text-white mb-1 block pointer-events-auto" data-cursor="pointer">← VOLVER AL INICIO</a>
+      <span class="font-mono text-[10px] text-graphite tracking-[0.25em] uppercase block">// SALA DE EXPOSICIÓN 3D</span>
+      <h1 class="font-condensed text-3xl sm:text-4xl font-bold uppercase text-white">
+        MUSEO DE FOTOGRAFÍAS.
+      </h1>
+    </div>
+
+    <!-- Masterpiece Switcher Pills -->
+    <div class="flex items-center gap-2 overflow-x-auto max-w-2xl pointer-events-auto bg-carbon/90 backdrop-blur-md p-1.5 rounded-lg border border-white/15">
+      {museumMasterpieces.map((item, i) => (
+        <button 
+          class={`museum-masterpiece-tab px-3.5 py-1.5 rounded font-mono text-[11px] uppercase transition-all whitespace-nowrap ${i === 0 ? 'bg-pure text-obsidian font-bold' : 'text-graphite hover:text-white'}`}
+          data-index={i}
+          data-cursor="pointer"
+        >
+          {item.title}
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Bottom Curatorial Card & Navigation Controls -->
+  <div class="fixed bottom-8 left-6 right-6 md:left-12 md:right-12 z-30 flex flex-col md:flex-row items-start md:items-end justify-between gap-6 pointer-events-none">
+    
+    <!-- Active Masterpiece Card -->
+    <div class="max-w-md p-6 rounded-xl bg-carbon/95 backdrop-blur-xl border border-white/15 pointer-events-auto shadow-2xl transition-all duration-300">
+      <div class="flex items-center gap-3 font-mono text-xs text-graphite mb-1">
+        <span id="active-art-album" class="text-white font-bold">{museumMasterpieces[0].title}</span>
+        <span>•</span>
+        <span id="active-art-counter" class="text-silver">OBRA 01 / 0{museumMasterpieces.length}</span>
+      </div>
+      <h2 id="active-art-title" class="font-condensed text-2xl sm:text-3xl font-bold uppercase text-white">
+        {museumMasterpieces[0].title}
+      </h2>
+      <p id="active-art-desc" class="font-body text-xs text-silver/80 mt-2 line-clamp-2">
+        {museumMasterpieces[0].description}
+      </p>
+
+      <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between font-mono text-xs">
+        <button id="btn-toggle-persp" class="text-pure font-bold hover:underline flex items-center gap-1.5" data-cursor="pointer">
+          <span id="persp-icon">🎯</span> <span id="persp-label">ENFOCAR DE FRENTE</span>
+        </button>
+        <a id="active-art-link" href={`/portafolio/${museumMasterpieces[0].albumSlug}`} class="px-3 py-1.5 rounded bg-white/10 hover:bg-white text-white hover:text-obsidian transition-all uppercase font-bold text-[11px]" data-cursor="pointer">
+          ENTRAR AL ÁLBUM ({museumMasterpieces[0].totalPhotos} FOTOS) ↗
+        </a>
+      </div>
+    </div>
+
+    <!-- Navigation Controls Dock -->
+    <div class="flex items-center gap-4 pointer-events-auto bg-carbon/90 backdrop-blur-md px-5 py-2.5 rounded-lg border border-white/15">
+      <button id="btn-museum-prev" class="text-white hover:text-silver flex items-center gap-2 font-mono text-xs font-bold" data-cursor="pointer">
+        <span>←</span> ANTERIOR
+      </button>
+      
+      <span class="font-mono text-[10px] text-graphite hidden sm:inline-block">CLIC EN LA FOTO PARA PONERLA PLANA • ARRASTRA</span>
+
+      <button id="btn-museum-next" class="text-white hover:text-silver flex items-center gap-2 font-mono text-xs font-bold" data-cursor="pointer">
+        SIGUIENTE <span>→</span>
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+  import * as THREE from 'three';
+  import gsap from 'gsap';
+  import { ALBUMS } from '../../data/albums';
+
+  const masterpieces = ALBUMS.map((album, idx) => ({
+    index: idx,
+    id: album.id,
+    title: album.title,
+    albumSlug: album.slug,
+    category: album.category,
+    photoUrl: album.bestPhoto.url,
+    description: album.description,
+    totalPhotos: album.photos.length,
+    shutter: album.bestPhoto.shutter,
+    aperture: album.bestPhoto.aperture,
+    iso: album.bestPhoto.iso,
+    dimensions: album.bestPhoto.dimensions,
+    anitaCopy: album.bestPhoto.anitaCopy
+  }));
+
+  const container = document.getElementById('museum-3d-canvas');
+  const albumElem = document.getElementById('active-art-album');
+  const counterElem = document.getElementById('active-art-counter');
+  const titleElem = document.getElementById('active-art-title');
+  const descElem = document.getElementById('active-art-desc');
+  const linkElem = document.getElementById('active-art-link') as HTMLAnchorElement;
+  const perspLabel = document.getElementById('persp-label');
+  const btnTogglePersp = document.getElementById('btn-toggle-persp');
+  const prevBtn = document.getElementById('btn-museum-prev');
+  const nextBtn = document.getElementById('btn-museum-next');
+  const masterpieceTabs = document.querySelectorAll('.museum-masterpiece-tab');
+
+  if (container) {
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x07080B);
+    scene.fog = new THREE.FogExp2(0x07080B, 0.02);
+
+    const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 120);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    container.appendChild(renderer.domElement);
+
+    // Uniform Soft Ambient
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+    fillLight.position.set(0, 10, 15);
+    scene.add(fillLight);
+
+    // Overhead gallery spotlight focusing on the wall contour
+    const wallSpotlight = new THREE.SpotLight(0xFFF7EC, 90);
+    wallSpotlight.angle = Math.PI / 3.0;
+    wallSpotlight.penumbra = 0.85;
+    wallSpotlight.decay = 1.6;
+    wallSpotlight.distance = 32;
+    scene.add(wallSpotlight);
+
+    const textureLoader = new THREE.TextureLoader();
+
+    // 1. Museum Architecture: Gallery Wall & Polished Dark Stone Floor
+    const roomGroup = new THREE.Group();
+    scene.add(roomGroup);
+
+    // Concrete Museum Wall along X
+    const wallGeo = new THREE.PlaneGeometry(200, 20);
+    const wallMat = new THREE.MeshStandardMaterial({
+      color: 0x14161E,
+      roughness: 0.9,
+      metalness: 0.05
+    });
+    const museumWall = new THREE.Mesh(wallGeo, wallMat);
+    museumWall.position.set(0, 5, -0.3);
+    roomGroup.add(museumWall);
+
+    // Museum Architectural Baseboard Moulding (Zócalo de galería)
+    const mouldingGeo = new THREE.BoxGeometry(200, 0.35, 0.2);
+    const mouldingMat = new THREE.MeshStandardMaterial({
+      color: 0x0A0B0E,
+      roughness: 0.3,
+      metalness: 0.4
+    });
+    const moulding = new THREE.Mesh(mouldingGeo, mouldingMat);
+    moulding.position.set(0, 0.175, -0.2);
+    roomGroup.add(moulding);
+
+    // Polished Dark Stone Museum Floor
+    const floorGeo = new THREE.PlaneGeometry(200, 50);
+    const floorMat = new THREE.MeshStandardMaterial({
+      color: 0x08090C,
+      roughness: 0.22,
+      metalness: 0.45,
+    });
+    const floor = new THREE.Mesh(floorGeo, floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.y = 0;
+    roomGroup.add(floor);
+
+    let activeIndex = 0;
+    let isStraightView = false; // DEFAULT IS INCLINED 3D PERSPECTIVE!
+    const framedArtworks: THREE.Mesh[] = [];
+    const raycastMeshes: THREE.Mesh[] = [];
+    const frameSpacing = 11.0;
+
+    masterpieces.forEach((item, i) => {
+      const xPos = (i - (masterpieces.length - 1) / 2) * frameSpacing;
+
+      // Frame Box Outer
+      const frameGeo = new THREE.BoxGeometry(5.4, 3.8, 0.16);
+      const frameMat = new THREE.MeshStandardMaterial({
+        color: 0x181B24,
+        roughness: 0.25,
+        metalness: 0.15,
+      });
+      const frameMesh = new THREE.Mesh(frameGeo, frameMat);
+      frameMesh.position.set(xPos, 2.8, 0);
+
+      // Photo Canvas (Grayscale in 3D wall room, color on lightbox)
+      const photoTexture = textureLoader.load(item.photoUrl, (tex) => {
+        const img = tex.image;
+        if (img) {
+          const aspect = img.width / img.height;
+          let pW = 4.8;
+          let pH = 3.2;
+
+          if (aspect > 1) {
+            pW = 4.8;
+            pH = 4.8 / aspect;
+          } else {
+            pH = 3.8;
+            pW = 3.8 * aspect;
+          }
+
+          photoMesh.geometry.dispose();
+          photoMesh.geometry = new THREE.PlaneGeometry(pW, pH);
+
+          frameMesh.geometry.dispose();
+          frameMesh.geometry = new THREE.BoxGeometry(pW + 0.35, pH + 0.35, 0.16);
+
+          renderer.render(scene, camera);
+        }
+      });
+
+      const photoMat = new THREE.MeshStandardMaterial({
+        map: photoTexture,
+        roughness: 0.2,
+        color: 0xDDDDDD,
+      });
+
+      const photoMesh = new THREE.Mesh(new THREE.PlaneGeometry(4.8, 3.2), photoMat);
+      photoMesh.position.z = 0.09;
+      photoMesh.userData = { index: i, item: item };
+      frameMesh.add(photoMesh);
+
+      roomGroup.add(frameMesh);
+      framedArtworks.push(frameMesh);
+      raycastMeshes.push(photoMesh);
+    });
+
+    let isTransitioning = false;
+
+    const updateUI = () => {
+      const item = masterpieces[activeIndex];
+      if (!item) return;
+
+      if (albumElem) albumElem.textContent = item.title;
+      if (counterElem) counterElem.textContent = `OBRA 0${activeIndex + 1} / 0${masterpieces.length}`;
+      if (titleElem) titleElem.textContent = item.title;
+      if (descElem) descElem.textContent = item.description;
+      if (linkElem) {
+        linkElem.href = `/portafolio/${item.albumSlug}`;
+        linkElem.textContent = `ENTRAR AL ÁLBUM (${item.totalPhotos} FOTOS) ↗`;
+      }
+
+      if (perspLabel) {
+        perspLabel.textContent = isStraightView ? 'VISTA EN PERSPECTIVA 3D' : 'ENFOCAR DE FRENTE (PLANO)';
+      }
+
+      masterpieceTabs.forEach((tab, idx) => {
+        if (idx === activeIndex) {
+          tab.classList.add('bg-pure', 'text-obsidian', 'font-bold');
+          tab.classList.remove('text-graphite');
+        } else {
+          tab.classList.remove('bg-pure', 'text-obsidian', 'font-bold');
+          tab.classList.add('text-graphite');
+        }
+      });
+    };
+
+    // Smooth navigation with INCLINED 3D by default, and FRONTAL PLANAR on demand/click
+    const slideToArtwork = (index: number, forceStraight: boolean = isStraightView) => {
+      if (index < 0) index = masterpieces.length - 1;
+      if (index >= masterpieces.length) index = 0;
+      activeIndex = index;
+      isStraightView = forceStraight;
+
+      const targetX = (activeIndex - (masterpieces.length - 1) / 2) * frameSpacing;
+      const targetFrame = framedArtworks[activeIndex];
+
+      isTransitioning = true;
+
+      // Inclined 3D architectural perspective (Default V3) vs Straight frontal
+      const targetCamX = isStraightView ? targetX : targetX + 3.2;
+      const targetCamY = 2.8;
+      const targetCamZ = isStraightView ? 4.8 : 6.4;
+      const targetRotY = isStraightView ? 0 : -0.24;
+
+      // Animate Camera
+      gsap.to(camera.position, {
+        x: targetCamX,
+        y: targetCamY,
+        z: targetCamZ,
+        duration: 1.1,
+        ease: 'power3.inOut',
+        onComplete: () => {
+          isTransitioning = false;
+        }
+      });
+
+      gsap.to(camera.rotation, {
+        y: targetRotY,
+        duration: 1.1,
+        ease: 'power3.inOut'
+      });
+
+      // Animate Spotlight to focus directly on the wall contour behind the frame
+      if (targetFrame) {
+        wallSpotlight.target = targetFrame;
+        gsap.to(wallSpotlight.position, {
+          x: targetX,
+          y: 7.5,
+          z: 3.5,
+          duration: 1.1,
+          ease: 'power3.inOut',
+        });
+      }
+
+      updateUI();
+    };
+
+    // Start with default inclined perspective (false)
+    slideToArtwork(0, false);
+
+    if (prevBtn) prevBtn.addEventListener('click', () => slideToArtwork(activeIndex - 1, false));
+    if (nextBtn) nextBtn.addEventListener('click', () => slideToArtwork(activeIndex + 1, false));
+
+    if (btnTogglePersp) {
+      btnTogglePersp.addEventListener('click', () => {
+        slideToArtwork(activeIndex, !isStraightView);
+      });
+    }
+
+    masterpieceTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const idx = parseInt(tab.getAttribute('data-index') || '0', 10);
+        slideToArtwork(idx, false);
+      });
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') slideToArtwork(activeIndex - 1, false);
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') slideToArtwork(activeIndex + 1, false);
+      if (e.key === ' ' || e.key === 'Enter') slideToArtwork(activeIndex, !isStraightView);
+    });
+
+    // Throttled Wheel Scroll
+    let isWheeling = false;
+    container.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (isWheeling || isTransitioning) return;
+
+      const delta = e.deltaY || e.deltaX;
+      if (Math.abs(delta) > 20) {
+        isWheeling = true;
+        if (delta > 0) {
+          slideToArtwork(activeIndex + 1, false);
+        } else {
+          slideToArtwork(activeIndex - 1, false);
+        }
+        setTimeout(() => {
+          isWheeling = false;
+        }, 250);
+      }
+    }, { passive: false });
+
+    // Drag / Swipe Navigation
+    let isDragging = false;
+    let dragStartX = 0;
+    let totalDragDist = 0;
+
+    container.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      dragStartX = e.clientX;
+      totalDragDist = 0;
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        if (Math.abs(totalDragDist) > 50) {
+          if (totalDragDist < 0) {
+            slideToArtwork(activeIndex + 1, false);
+          } else {
+            slideToArtwork(activeIndex - 1, false);
+          }
+        }
+      }
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      totalDragDist = e.clientX - dragStartX;
+    });
+
+    // Fullscreen Lightbox
+    const openActiveFullscreen = () => {
+      const item = masterpieces[activeIndex];
+      if (!item) return;
+
+      const triggerEl = document.createElement('div');
+      triggerEl.setAttribute('data-lightbox-photo', 'true');
+      triggerEl.setAttribute('data-url', item.photoUrl);
+      triggerEl.setAttribute('data-title', item.title);
+      triggerEl.setAttribute('data-copy', item.anitaCopy);
+      triggerEl.setAttribute('data-album', item.title);
+      triggerEl.setAttribute('data-shutter', item.shutter);
+      triggerEl.setAttribute('data-aperture', item.aperture);
+      triggerEl.setAttribute('data-iso', item.iso);
+      triggerEl.setAttribute('data-dim', item.dimensions);
+      document.body.appendChild(triggerEl);
+      triggerEl.click();
+      triggerEl.remove();
+    };
+
+    // Click on 3D painting: Click 1 puts it STRAIGHT (plano), Click 2 opens fullscreen!
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    container.addEventListener('click', (e) => {
+      if (Math.abs(totalDragDist) > 15) return;
+      const rect = container.getBoundingClientRect();
+      mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(raycastMeshes);
+
+      if (intersects.length > 0) {
+        const clickedMesh = intersects[0].object;
+        const clickedIdx = clickedMesh.userData.index;
+        if (clickedIdx === activeIndex) {
+          if (!isStraightView) {
+            // First click on active photo: corrects inclination and straightens view
+            slideToArtwork(clickedIdx, true);
+          } else {
+            // Second click when already straight: opens fullscreen Lightbox
+            openActiveFullscreen();
+          }
+        } else {
+          slideToArtwork(clickedIdx, false);
+        }
+      }
+    });
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  }
+</script>

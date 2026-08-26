@@ -1,0 +1,82 @@
+---
+import '../styles/global.css';
+import Header from '../components/ui/Header.astro';
+import Footer from '../components/ui/Footer.astro';
+import CustomCursor from '../components/ui/CustomCursor.astro';
+import PhotoModal from '../components/gallery/PhotoModal.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'MOMMENTUM | Fotografía Conceptual & De Autor',
+  description = 'El arte de congelar el pulso de la vida. Galería de arte y retratos conceptuales de autor.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="es" class="scroll-smooth bg-obsidian text-pure">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/images/logo/Logo Momentum.png" />
+    <meta name="generator" content={Astro.generator} />
+    
+    <!-- Open Graph / Meta -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content="https://www.instagram.com/mommentum.ises/" />
+    <meta property="og:image" content="/images/logo/Logo Momentum.png" />
+
+    <title>{title}</title>
+  </head>
+  <body class="bg-obsidian text-pure selection:bg-pure selection:text-obsidian antialiased overflow-x-hidden min-h-screen">
+    <!-- Custom Magnetic Cursor -->
+    <CustomCursor />
+
+    <!-- Site Header Navigation -->
+    <Header />
+
+    <!-- Main Content Flow -->
+    <main>
+      <slot />
+    </main>
+
+    <!-- Inspection Modal -->
+    <PhotoModal />
+
+    <!-- Architectural Footer -->
+    <Footer />
+
+    <!-- Lenis Smooth Momentum Scroll Engine -->
+    <script>
+      import Lenis from 'lenis';
+      import gsap from 'gsap';
+      import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      const lenis = new Lenis({
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 1,
+        touchMultiplier: 2,
+        infinite: false,
+      });
+
+      lenis.on('scroll', ScrollTrigger.update);
+
+      gsap.ticker.add((time) => {
+        lenis.raf(time * 1000);
+      });
+
+      gsap.ticker.lagSmoothing(0);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,90 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import AlbumGallery3D from '../../components/three/AlbumGallery3D.astro';
+import { SERIES_LIST } from '../../data/portfolio';
+---
+
+<Layout title="Colecciones & Salas 3D | MOMMENTUM" description="Explora los salones y cuerpos de obra de fotografía conceptual y de autor en un entorno 3D inmersivo.">
+  <div class="pt-32 pb-24 bg-obsidian text-pure">
+    
+    <!-- Hero Header of Collections -->
+    <div class="max-w-7xl mx-auto px-6 md:px-12 mb-16">
+      <div class="max-w-3xl">
+        <span class="font-mono text-xs tracking-[0.25em] text-graphite uppercase">// SALAS DE EXPOSICIÓN VIRTUAL</span>
+        <h1 class="font-condensed text-5xl sm:text-7xl md:text-8xl uppercase font-bold tracking-tight text-pure mt-3 leading-none">
+          CUERPOS DE OBRA & SERIES.
+        </h1>
+        <p class="font-body text-base md:text-lg text-silver/80 mt-6 leading-relaxed">
+          Cada serie representa una investigación visual autónoma en torno al movimiento, la penumbra, la geometría brutalista y la verdad no fingida del sujeto.
+        </p>
+      </div>
+    </div>
+
+    <!-- Interactive 3D Cylindrical Stage -->
+    <AlbumGallery3D />
+
+    <!-- Detailed Series Index Grid -->
+    <div class="max-w-7xl mx-auto px-6 md:px-12 mt-24">
+      <div class="border-b border-white/10 pb-6 mb-12 flex items-center justify-between">
+        <span class="font-mono text-xs tracking-widest text-graphite uppercase">ÍNDICE DE SALAS CURADAS</span>
+        <span class="font-mono text-xs text-silver">{SERIES_LIST.length} SERIES COMPLETAS</span>
+      </div>
+
+      <div class="space-y-16">
+        {SERIES_LIST.map((series) => (
+          <div class="group grid grid-cols-1 lg:grid-cols-12 gap-8 items-center p-8 rounded-xl bg-carbon/50 border border-white/5 hover:border-white/20 transition-all duration-500">
+            <!-- Left Info -->
+            <div class="lg:col-span-6 flex flex-col justify-between h-full">
+              <div>
+                <div class="flex items-center gap-4 font-mono text-xs text-graphite mb-3">
+                  <span class="text-pure font-bold">SERIE {series.number}</span>
+                  <span>•</span>
+                  <span>{series.year}</span>
+                  <span>•</span>
+                  <span>{series.location}</span>
+                </div>
+
+                <h2 class="font-condensed text-3xl sm:text-4xl md:text-5xl font-bold uppercase text-pure group-hover:text-silver transition-colors">
+                  {series.title}
+                </h2>
+
+                <p class="font-body text-sm text-silver/90 mt-4 leading-relaxed">
+                  {series.description}
+                </p>
+
+                <p class="font-body text-xs text-graphite mt-3 italic">
+                  "{series.curatorNote}"
+                </p>
+              </div>
+
+              <div class="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                <span class="font-mono text-xs text-graphite">{series.photos.length} OBRAS SELECCIONADAS</span>
+                <a 
+                  href={`/colecciones/${series.id}`} 
+                  class="px-6 py-3 bg-pure text-obsidian hover:bg-gallery font-condensed tracking-widest text-xs uppercase font-bold transition-all flex items-center gap-2"
+                  data-cursor="explore"
+                >
+                  <span>INGRESAR A SALA</span>
+                  <span>→</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Right Image Showcase -->
+            <div class="lg:col-span-6 aspect-[16/10] overflow-hidden rounded bg-obsidian border border-white/10">
+              <a href={`/colecciones/${series.id}`} data-cursor="explore">
+                <img 
+                  src={series.coverImage} 
+                  alt={series.title} 
+                  class="w-full h-full object-cover filter grayscale contrast-125 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                  loading="lazy"
+                />
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+  </div>
+</Layout>

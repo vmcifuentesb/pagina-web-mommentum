@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroCanvas3D from '../components/three/HeroCanvas3D.astro';
+import AlbumGallery3D from '../components/three/AlbumGallery3D.astro';
+---
+
+<BaseLayout title="MOMMENTUM // Fotografías en Guatemala" isHome={true}>
+  
+  <!-- 01 // Interactive 3D WebGL Hero & Kinetic Typography (Exact Variante 1) -->
+  <HeroCanvas3D />
+
+  <!-- 02 // 3D Cylindrical Exhibition Room Carousel (Exact Variante 1) -->
+  <AlbumGallery3D />
+
+</BaseLayout>

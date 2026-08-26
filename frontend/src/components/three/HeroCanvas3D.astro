@@ -1,0 +1,177 @@
+---
+// 3D Interactive Hero WebGL Canvas & Kinetic Typography (Variante 1)
+---
+
+<section class="relative w-full min-h-screen flex flex-col justify-between overflow-hidden bg-obsidian text-pure pt-28 pb-12 px-6 md:px-12 select-none">
+  <!-- WebGL 3D Canvas Background (Exact V1 3D Kinetic Light Wave Mesh + Silver Particles) -->
+  <div id="hero-webgl-container" class="absolute inset-0 z-0 pointer-events-none opacity-70"></div>
+  
+  <!-- Subtle Grain & Vignette Overlay -->
+  <div class="absolute inset-0 z-[1] pointer-events-none bg-noise"></div>
+  <div class="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-b from-transparent via-obsidian/30 to-obsidian"></div>
+
+  <!-- Top Hero Metadata Full Width -->
+  <div class="relative z-10 w-full flex items-center justify-between font-mono text-[10px] md:text-xs tracking-widest text-graphite uppercase">
+    <div class="flex items-center gap-3">
+      <span class="inline-block w-2 h-2 rounded-full bg-pure animate-ping"></span>
+      <span>GALERÍA FOTOGRÁFICA</span>
+    </div>
+    <div class="hidden sm:block">
+      <span>SERIES • 2026</span>
+    </div>
+    <div>
+      <span>REGISTRO VISUAL</span>
+    </div>
+  </div>
+
+  <!-- Main Central Headline (Chosen Title: MOMMENTUM. FOTOGRAFÍAS.) -->
+  <div class="relative z-10 w-full my-auto py-12 flex flex-col justify-center">
+    <div class="overflow-hidden mb-3">
+      <p id="hero-tagline" class="font-mono text-xs md:text-sm tracking-[0.3em] uppercase text-silver font-medium">
+        [ ARCHIVO FOTOGRÁFICO & REGISTRO DE MOMENTOS ]
+      </p>
+    </div>
+
+    <div class="overflow-hidden">
+      <h1 id="hero-title" class="font-condensed text-6xl sm:text-8xl md:text-9xl lg:text-[9.5rem] uppercase font-bold tracking-tight leading-[0.88] text-pure">
+        MOMMENTUM.<br />
+        <span class="text-transparent text-stroke hover:text-pure transition-colors duration-500">FOTOGRAFÍAS</span>
+      </h1>
+    </div>
+
+    <div class="mt-8 max-w-xl text-silver/90 font-body text-sm md:text-base leading-relaxed">
+      <p id="hero-desc">
+        Fotografías de viajes, eventos, retratos y momentos. Una galería visual para guardar y compartir recuerdos por afición.
+      </p>
+    </div>
+
+    <!-- CTA Group -->
+    <div id="hero-cta" class="mt-10 flex flex-wrap items-center gap-4">
+      <a href="#albumes-3d" class="px-8 py-4 bg-pure text-obsidian font-condensed tracking-widest text-sm uppercase font-bold hover:bg-silver transition-all duration-300 hover:scale-95 shadow-2xl flex items-center gap-2 rounded" data-cursor="explore">
+        <span>EXPLORAR ÁLBUMES 3D</span>
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </a>
+      <a href="/portafolio" class="px-8 py-4 border border-white/20 text-pure font-condensed tracking-widest text-sm uppercase font-bold hover:border-white hover:bg-white/5 transition-all duration-300 rounded" data-cursor="pointer">
+        <span>VER CATÁLOGO COMPLETO</span>
+      </a>
+      <a href="/museo" class="px-8 py-4 glass-panel text-silver hover:text-pure font-condensed tracking-widest text-sm uppercase font-bold hover:border-white transition-all duration-300 rounded" data-cursor="pointer">
+        <span>ENTRAR AL MUSEO 3D →</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Bottom Hero Status Bar Full Width -->
+  <div class="relative z-10 w-full flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-[10px] md:text-xs text-graphite tracking-widest uppercase border-t border-white/10 pt-6">
+    <div class="flex items-center gap-6">
+      <span>01 // VIAJES & CULTURA</span>
+      <span>02 // RETRATOS</span>
+      <span>03 // CALLES</span>
+      <span>04 // FAMILIA</span>
+    </div>
+    <div class="flex items-center gap-2 text-silver animate-bounce">
+      <span>DESPLAZAR HACIA ABAJO</span>
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<script>
+  import * as THREE from 'three';
+
+  const container = document.getElementById('hero-webgl-container');
+  if (container) {
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 25;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    container.appendChild(renderer.domElement);
+
+    // 3D Kinetic Light Ribbon Mesh (Exact Variante 1)
+    const geometry = new THREE.PlaneGeometry(60, 40, 64, 64);
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.14
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.rotation.x = -Math.PI / 3;
+    mesh.position.y = -5;
+    scene.add(mesh);
+
+    // Floating Particles
+    const particlesCount = 180;
+    const particlePositions = new Float32Array(particlesCount * 3);
+    for (let i = 0; i < particlesCount * 3; i += 3) {
+      particlePositions[i] = (Math.random() - 0.5) * 50;
+      particlePositions[i + 1] = (Math.random() - 0.5) * 40;
+      particlePositions[i + 2] = (Math.random() - 0.5) * 30;
+    }
+    const particleGeometry = new THREE.BufferGeometry();
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+
+    const particleMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.18,
+      transparent: true,
+      opacity: 0.45
+    });
+
+    const particles = new THREE.Points(particleGeometry, particleMaterial);
+    scene.add(particles);
+
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    let clock = new THREE.Clock();
+
+    const animate = () => {
+      requestAnimationFrame(animate);
+      const elapsedTime = clock.getElapsedTime();
+
+      targetX += (mouseX - targetX) * 0.05;
+      targetY += (mouseY - targetY) * 0.05;
+
+      camera.position.x = targetX * 3;
+      camera.position.y = -targetY * 3;
+      camera.lookAt(scene.position);
+
+      const positions = geometry.attributes.position;
+      for (let i = 0; i < positions.count; i++) {
+        const u = positions.getX(i);
+        const v = positions.getY(i);
+        const z = Math.sin(u * 0.2 + elapsedTime * 1.2) * Math.cos(v * 0.2 + elapsedTime * 0.8) * 2.5;
+        positions.setZ(i, z);
+      }
+      positions.needsUpdate = true;
+
+      particles.rotation.y = elapsedTime * 0.03;
+
+      renderer.render(scene, camera);
+    };
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  }
+</script>

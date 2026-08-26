@@ -1,0 +1,127 @@
+---
+import type { PhotoItem } from '../../data/albums';
+
+interface Props {
+  photos: PhotoItem[];
+}
+
+const { photos } = Astro.props;
+---
+
+<div id="accordion-wrapper" class="relative w-full py-6 select-none overflow-hidden" data-cursor="pointer">
+  
+  <!-- Subtle Helper Bar -->
+  <div class="w-full px-6 md:px-12 mb-4 flex items-center justify-between font-mono text-xs text-graphite border-b border-white/10 pb-3">
+    <span>FUELLE DE RETRATOS INTERACTIVO ({photos.length} FOTOGRAFÍAS)</span>
+    <span class="hidden sm:inline">USA EL CURSOR O LAS TECLAS ← / → PARA EXPANDIR</span>
+  </div>
+
+  <!-- Giant Interactive Accordion Folds Container -->
+  <div id="accordion-container" class="w-full px-6 md:px-12 flex items-stretch gap-3 sm:gap-4 h-[72vh] sm:h-[78vh] overflow-x-auto pb-4 scrollbar-none">
+    {photos.map((photo, index) => (
+      <div 
+        class={`accordion-fold relative flex-shrink-0 rounded-2xl overflow-hidden bg-carbon border border-white/15 hover:border-white transition-all duration-700 ease-out cursor-pointer group shadow-2xl ${index === 0 ? 'w-[75vw] sm:w-[620px] md:w-[720px]' : 'w-24 sm:w-32 hover:w-[65vw] sm:hover:w-[580px]'}`}
+        data-index={index}
+        data-lightbox-photo
+        data-url={photo.url}
+        data-title={photo.title}
+        data-copy={photo.anitaCopy}
+        data-album={photo.albumSlug}
+        data-shutter={photo.shutter}
+        data-aperture={photo.aperture}
+        data-iso={photo.iso}
+        data-dim={photo.dimensions}
+        data-cursor="view"
+      >
+        <!-- Full Height Image -->
+        <img 
+          src={photo.url} 
+          alt={photo.title} 
+          class="w-full h-full object-cover filter contrast-105 group-hover:scale-105 transition-transform duration-700" 
+          loading="lazy"
+        />
+
+        <!-- Fold Vignette Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-obsidian/95 via-obsidian/20 to-transparent"></div>
+
+        <!-- Vertical Collapsed Title (when narrow) -->
+        <div class="absolute top-6 left-1/2 -translate-x-1/2 -rotate-90 origin-center whitespace-nowrap font-mono text-xs text-white/70 font-bold uppercase tracking-widest pointer-events-none group-hover:opacity-0 transition-opacity">
+          <span>0{index + 1} // {photo.title}</span>
+        </div>
+
+        <!-- Expanded Bottom Content Card -->
+        <div class="absolute bottom-6 left-6 right-6 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+          <div class="bg-obsidian/85 backdrop-blur-md p-4 rounded-xl border border-white/15 flex items-center justify-between">
+            <div>
+              <span class="font-mono text-[10px] text-graphite uppercase">FOTO 0{index + 1} / 0{photos.length}</span>
+              <h3 class="font-condensed text-2xl sm:text-3xl font-bold uppercase text-white">{photo.title}</h3>
+              <p class="font-body text-xs text-silver/80">{photo.anitaCopy}</p>
+            </div>
+            <span class="px-4 py-2 rounded bg-pure text-obsidian font-mono text-xs font-bold uppercase">
+              AMPLIAR ↗
+            </span>
+          </div>
+        </div>
+
+      </div>
+    ))}
+  </div>
+
+</div>
+
+<script>
+  const folds = document.querySelectorAll('.accordion-fold');
+  const container = document.getElementById('accordion-container');
+  let activeIndex = 0;
+
+  const setActiveFold = (index: number) => {
+    if (index < 0) index = folds.length - 1;
+    if (index >= folds.length) index = 0;
+    activeIndex = index;
+
+    folds.forEach((fold, idx) => {
+      if (idx === activeIndex) {
+        fold.classList.remove('w-24', 'sm:w-32');
+        fold.classList.add('w-[75vw]', 'sm:w-[620px]', 'md:w-[720px]', 'border-white');
+        fold.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      } else {
+        fold.classList.add('w-24', 'sm:w-32');
+        fold.classList.remove('w-[75vw]', 'sm:w-[620px]', 'md:w-[720px]', 'border-white');
+      }
+    });
+  };
+
+  folds.forEach((fold) => {
+    fold.addEventListener('mouseenter', () => {
+      const idx = parseInt(fold.getAttribute('data-index') || '0', 10);
+      setActiveFold(idx);
+    });
+  });
+
+  // Keyboard navigation
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') setActiveFold(activeIndex + 1);
+    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') setActiveFold(activeIndex - 1);
+  });
+
+  // Smooth Throttled Wheel Scroll
+  if (container) {
+    let isWheeling = false;
+    container.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (isWheeling) return;
+
+      if (Math.abs(e.deltaY) > 20 || Math.abs(e.deltaX) > 20) {
+        isWheeling = true;
+        if (e.deltaY > 0 || e.deltaX > 0) {
+          setActiveFold(activeIndex + 1);
+        } else {
+          setActiveFold(activeIndex - 1);
+        }
+        setTimeout(() => {
+          isWheeling = false;
+        }, 250);
+      }
+    }, { passive: false });
+  }
+</script>

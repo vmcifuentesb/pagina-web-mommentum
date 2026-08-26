@@ -1,0 +1,164 @@
+---
+// Fixed Multi-Page Architectural Header Component
+const pathname = new URL(Astro.request.url).pathname;
+
+const navLinks = [
+  { href: '/', label: 'Inicio', number: '01' },
+  { href: '/colecciones', label: 'Colecciones', number: '02' },
+  { href: '/obras', label: 'Obras', number: '03' },
+  { href: '/manifiesto', label: 'Manifiesto', number: '04' },
+  { href: '/laboratorio', label: 'Laboratorio', number: '05' },
+  { href: '/adquisiciones', label: 'Adquisición', number: '06' },
+];
+---
+
+<header class="fixed top-0 left-0 w-full z-40 px-6 md:px-12 py-5 transition-all duration-300 backdrop-blur-md bg-obsidian/85 border-b border-white/5">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <!-- Brand Logo -->
+    <a href="/" class="group flex items-center gap-3" data-cursor="pointer">
+      <div class="w-8 h-8 rounded bg-pure flex items-center justify-center text-obsidian font-condensed font-bold text-lg tracking-tight transition-transform group-hover:scale-95">
+        M
+      </div>
+      <div class="flex flex-col">
+        <span class="font-condensed text-xl tracking-[0.2em] text-pure font-bold leading-none">MOMMENTUM</span>
+        <span class="font-mono text-[9px] tracking-widest text-graphite uppercase">Galería & Autor</span>
+      </div>
+    </a>
+
+    <!-- Desktop Multi-Page Navigation -->
+    <nav class="hidden lg:flex items-center gap-7 font-mono text-[11px] tracking-widest uppercase text-silver">
+      {navLinks.map((link) => {
+        const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+        return (
+          <a 
+            href={link.href} 
+            class={`transition-colors flex items-center gap-1.5 py-1 relative ${isActive ? 'text-pure font-semibold' : 'text-graphite hover:text-silver'}`} 
+            data-cursor="pointer"
+          >
+            <span class={isActive ? 'text-pure' : 'text-graphite/60'}>{link.number}/</span>
+            <span>{link.label}</span>
+            {isActive && (
+              <span class="absolute -bottom-1 left-0 w-full h-[1px] bg-pure"></span>
+            )}
+          </a>
+        );
+      })}
+    </nav>
+
+    <!-- Actions: Sound & Instagram -->
+    <div class="flex items-center gap-4">
+      <!-- Sound Switch -->
+      <button id="sound-toggle" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded border border-white/10 hover:border-white/30 text-graphite hover:text-pure font-mono text-[10px] tracking-widest uppercase transition-all" title="Atmósfera Sonora" data-cursor="pointer">
+        <span id="sound-indicator" class="w-1.5 h-1.5 rounded-full bg-graphite transition-colors"></span>
+        <span id="sound-text">AUDIO OFF</span>
+      </button>
+
+      <!-- Instagram Link -->
+      <a href="https://www.instagram.com/mommentum.ises/" target="_blank" rel="noopener noreferrer" class="px-4 py-2 bg-pure text-obsidian hover:bg-gallery font-condensed tracking-widest text-xs uppercase font-bold transition-all hover:scale-95 flex items-center gap-1.5" data-cursor="pointer">
+        <span>@MOMMENTUM.ISES</span>
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="7" y1="17" x2="17" y2="7"></line>
+          <polyline points="7 7 17 7 17 17"></polyline>
+        </svg>
+      </a>
+
+      <!-- Mobile Menu Button -->
+      <button id="mobile-menu-btn" class="lg:hidden p-2 text-pure hover:text-silver focus:outline-none" aria-label="Abrir Menú">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Drawer -->
+  <div id="mobile-drawer" class="fixed inset-0 top-[73px] bg-obsidian/95 backdrop-blur-2xl border-t border-white/10 p-8 flex flex-col justify-between hidden lg:hidden z-50">
+    <nav class="flex flex-col gap-6 font-condensed text-3xl tracking-widest uppercase text-silver">
+      {navLinks.map((link) => (
+        <a href={link.href} class="mobile-nav-link hover:text-pure flex items-center justify-between">
+          <span>{link.number} {link.label}</span>
+          <span class="text-xs font-mono text-graphite">ENTRAR →</span>
+        </a>
+      ))}
+    </nav>
+    <div class="pt-8 border-t border-white/10 flex flex-col gap-3 font-mono text-xs text-graphite">
+      <p>MOMMENTUM © 2026</p>
+      <p>Fotografía Conceptual & De Autor</p>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Mobile drawer logic
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const drawer = document.getElementById('mobile-drawer');
+  const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+
+  if (menuBtn && drawer) {
+    menuBtn.addEventListener('click', () => {
+      drawer.classList.toggle('hidden');
+    });
+
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        drawer.classList.add('hidden');
+      });
+    });
+  }
+
+  // Atmospheric Web Audio Context (Minimal Ambient Synth Tone)
+  let audioCtx = null;
+  let oscillator = null;
+  let gainNode = null;
+  let isPlaying = false;
+
+  const soundBtn = document.getElementById('sound-toggle');
+  const soundIndicator = document.getElementById('sound-indicator');
+  const soundText = document.getElementById('sound-text');
+
+  if (soundBtn && soundIndicator && soundText) {
+    soundBtn.addEventListener('click', () => {
+      if (!isPlaying) {
+        try {
+          audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+          
+          oscillator = audioCtx.createOscillator();
+          gainNode = audioCtx.createGain();
+          
+          oscillator.type = 'sine';
+          oscillator.frequency.setValueAtTime(55, audioCtx.currentTime);
+          
+          const filter = audioCtx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(120, audioCtx.currentTime);
+
+          gainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.05, audioCtx.currentTime + 2);
+
+          oscillator.connect(filter);
+          filter.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+          
+          oscillator.start();
+          isPlaying = true;
+          soundIndicator.classList.remove('bg-graphite');
+          soundIndicator.classList.add('bg-pure', 'animate-pulse');
+          soundText.textContent = 'AUDIO ON';
+        } catch (e) {
+          console.warn('Audio contextual error', e);
+        }
+      } else {
+        if (gainNode && audioCtx) {
+          gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
+          setTimeout(() => {
+            if (oscillator) oscillator.stop();
+            isPlaying = false;
+            soundIndicator.classList.remove('bg-pure', 'animate-pulse');
+            soundIndicator.classList.add('bg-graphite');
+            soundText.textContent = 'AUDIO OFF';
+          }, 500);
+        }
+      }
+    });
+  }
+</script>
