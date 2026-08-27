@@ -1,5 +1,5 @@
 ---
-// Universal Transition Studio: Ultra-Optimized 120FPS Cinematic Transitions (No Lag, Zero Conflict)
+// Universal Transition Studio: 5 Distinct High-End Transitions (100% Reliable, Zero Freeze)
 ---
 
 <!-- Transition Container Overlays -->
@@ -74,6 +74,10 @@
 <script>
   import gsap from 'gsap';
 
+  // Ensure persistent state on window that survives Astro DOM swaps
+  const globalNav = (window as any).__mommentumNav || { isNavigating: false, style: 'curtain' };
+  (window as any).__mommentumNav = globalNav;
+
   const overlay = document.getElementById('transition-studio-overlay');
 
   const getTransitionForPath = (path: string): string => {
@@ -98,10 +102,11 @@
     document.querySelectorAll('.transition-fx').forEach(el => {
       (el as HTMLElement).classList.add('hidden');
       (el as HTMLElement).style.display = 'none';
+      gsap.killTweensOf(el);
     });
   };
 
-  // 1. Dual Curtain (Ultra fast 60-120fps)
+  // 1. Dual Curtain
   const runCurtainIn = (onComplete: () => void) => {
     const el = document.getElementById('fx-curtain');
     const cl = document.getElementById('fx-curtain-l');
@@ -113,10 +118,11 @@
     el.classList.remove('hidden');
     el.style.display = 'flex';
 
+    gsap.killTweensOf([cl, cr, badge]);
     gsap.timeline({ onComplete })
-      .fromTo(cl, { xPercent: -100 }, { xPercent: 0, duration: 0.28, ease: 'power2.inOut' }, 0)
-      .fromTo(cr, { xPercent: 100 }, { xPercent: 0, duration: 0.28, ease: 'power2.inOut' }, 0)
-      .fromTo(badge, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.18, ease: 'power2.out' }, 0.08);
+      .fromTo(cl, { xPercent: -100 }, { xPercent: 0, duration: 0.3, ease: 'power2.inOut' }, 0)
+      .fromTo(cr, { xPercent: 100 }, { xPercent: 0, duration: 0.3, ease: 'power2.inOut' }, 0)
+      .fromTo(badge, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.2, ease: 'power2.out' }, 0.1);
   };
 
   const runCurtainOut = (onComplete: () => void) => {
@@ -129,14 +135,15 @@
     hideAllFx();
     el.classList.remove('hidden');
     el.style.display = 'flex';
+    gsap.killTweensOf([cl, cr, badge]);
     gsap.set(cl, { xPercent: 0 });
     gsap.set(cr, { xPercent: 0 });
     if (badge) gsap.set(badge, { opacity: 1, scale: 1 });
 
     gsap.timeline({ onComplete })
-      .to(badge, { opacity: 0, scale: 0.95, duration: 0.14, ease: 'power2.in' }, 0)
-      .to(cl, { xPercent: -100, duration: 0.3, ease: 'power2.inOut' }, 0.03)
-      .to(cr, { xPercent: 100, duration: 0.3, ease: 'power2.inOut' }, 0.03);
+      .to(badge, { opacity: 0, scale: 0.95, duration: 0.15, ease: 'power2.in' }, 0)
+      .to(cl, { xPercent: -100, duration: 0.35, ease: 'power2.inOut' }, 0.05)
+      .to(cr, { xPercent: 100, duration: 0.35, ease: 'power2.inOut' }, 0.05);
   };
 
   // 2. Camera Iris
@@ -149,9 +156,10 @@
     el.classList.remove('hidden');
     el.style.display = 'flex';
 
+    gsap.killTweensOf([el, content]);
     gsap.timeline({ onComplete })
-      .fromTo(el, { clipPath: 'circle(0% at 50% 50%)' }, { clipPath: 'circle(150% at 50% 50%)', duration: 0.3, ease: 'power2.inOut' }, 0)
-      .fromTo(content, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.18, ease: 'power2.out' }, 0.1);
+      .fromTo(el, { clipPath: 'circle(0% at 50% 50%)' }, { clipPath: 'circle(150% at 50% 50%)', duration: 0.32, ease: 'power2.inOut' }, 0)
+      .fromTo(content, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.2, ease: 'power2.out' }, 0.12);
   };
 
   const runIrisOut = (onComplete: () => void) => {
@@ -162,12 +170,13 @@
     hideAllFx();
     el.classList.remove('hidden');
     el.style.display = 'flex';
+    gsap.killTweensOf([el, content]);
     gsap.set(el, { clipPath: 'circle(150% at 50% 50%)' });
     if (content) gsap.set(content, { opacity: 1, scale: 1 });
 
     gsap.timeline({ onComplete })
-      .to(content, { opacity: 0, scale: 1.05, duration: 0.12, ease: 'power2.in' }, 0)
-      .to(el, { clipPath: 'circle(0% at 50% 50%)', duration: 0.3, ease: 'power2.inOut' }, 0.03);
+      .to(content, { opacity: 0, scale: 1.05, duration: 0.14, ease: 'power2.in' }, 0)
+      .to(el, { clipPath: 'circle(0% at 50% 50%)', duration: 0.35, ease: 'power2.inOut' }, 0.05);
   };
 
   // 3. Vertical Curtain
@@ -182,10 +191,11 @@
     el.classList.remove('hidden');
     el.style.display = 'flex';
 
+    gsap.killTweensOf([vt, vb, badge]);
     gsap.timeline({ onComplete })
-      .fromTo(vt, { yPercent: -100 }, { yPercent: 0, duration: 0.28, ease: 'power2.inOut' }, 0)
-      .fromTo(vb, { yPercent: 100 }, { yPercent: 0, duration: 0.28, ease: 'power2.inOut' }, 0)
-      .fromTo(badge, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.18, ease: 'power2.out' }, 0.08);
+      .fromTo(vt, { yPercent: -100 }, { yPercent: 0, duration: 0.3, ease: 'power2.inOut' }, 0)
+      .fromTo(vb, { yPercent: 100 }, { yPercent: 0, duration: 0.3, ease: 'power2.inOut' }, 0)
+      .fromTo(badge, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.2, ease: 'power2.out' }, 0.1);
   };
 
   const runVerticalOut = (onComplete: () => void) => {
@@ -198,14 +208,15 @@
     hideAllFx();
     el.classList.remove('hidden');
     el.style.display = 'flex';
+    gsap.killTweensOf([vt, vb, badge]);
     gsap.set(vt, { yPercent: 0 });
     gsap.set(vb, { yPercent: 0 });
     if (badge) gsap.set(badge, { opacity: 1, scale: 1 });
 
     gsap.timeline({ onComplete })
-      .to(badge, { opacity: 0, scale: 0.95, duration: 0.14, ease: 'power2.in' }, 0)
-      .to(vt, { yPercent: -100, duration: 0.3, ease: 'power2.inOut' }, 0.03)
-      .to(vb, { yPercent: 100, duration: 0.3, ease: 'power2.inOut' }, 0.03);
+      .to(badge, { opacity: 0, scale: 0.95, duration: 0.15, ease: 'power2.in' }, 0)
+      .to(vt, { yPercent: -100, duration: 0.35, ease: 'power2.inOut' }, 0.05)
+      .to(vb, { yPercent: 100, duration: 0.35, ease: 'power2.inOut' }, 0.05);
   };
 
   // 4. Staggered Columns
@@ -219,9 +230,10 @@
     el.classList.remove('hidden');
     el.style.display = 'flex';
 
+    gsap.killTweensOf([...cols, badge]);
     gsap.timeline({ onComplete })
-      .fromTo(cols, { yPercent: -100 }, { yPercent: 0, duration: 0.26, stagger: 0.02, ease: 'power2.inOut' }, 0)
-      .fromTo(badge, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.15, ease: 'power2.out' }, 0.08);
+      .fromTo(cols, { yPercent: -100 }, { yPercent: 0, duration: 0.28, stagger: 0.02, ease: 'power2.inOut' }, 0)
+      .fromTo(badge, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.18, ease: 'power2.out' }, 0.1);
   };
 
   const runColumnsOut = (onComplete: () => void) => {
@@ -233,12 +245,13 @@
     hideAllFx();
     el.classList.remove('hidden');
     el.style.display = 'flex';
+    gsap.killTweensOf([...cols, badge]);
     gsap.set(cols, { yPercent: 0 });
     if (badge) gsap.set(badge, { opacity: 1 });
 
     gsap.timeline({ onComplete })
       .to(badge, { opacity: 0, duration: 0.12 }, 0)
-      .to(cols, { yPercent: 100, duration: 0.28, stagger: 0.02, ease: 'power2.inOut' }, 0.02);
+      .to(cols, { yPercent: 100, duration: 0.32, stagger: 0.02, ease: 'power2.inOut' }, 0.03);
   };
 
   // 5. Flash & Fade
@@ -252,11 +265,12 @@
     el.classList.remove('hidden');
     el.style.display = 'flex';
 
+    gsap.killTweensOf([el, burst, content]);
     gsap.timeline({ onComplete })
       .set(el, { opacity: 1 })
-      .fromTo(burst, { opacity: 0 }, { opacity: 1, duration: 0.08, ease: 'power1.out' }, 0)
-      .to(burst, { opacity: 0, duration: 0.14, ease: 'power2.in' }, 0.08)
-      .fromTo(content, { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.14, ease: 'power2.out' }, 0.08);
+      .fromTo(burst, { opacity: 0 }, { opacity: 1, duration: 0.1, ease: 'power1.out' }, 0)
+      .to(burst, { opacity: 0, duration: 0.18, ease: 'power2.in' }, 0.1)
+      .fromTo(content, { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.18, ease: 'power2.out' }, 0.1);
   };
 
   const runFlashOut = (onComplete: () => void) => {
@@ -267,12 +281,13 @@
     hideAllFx();
     el.classList.remove('hidden');
     el.style.display = 'flex';
+    gsap.killTweensOf([el, content]);
     gsap.set(el, { opacity: 1 });
     if (content) gsap.set(content, { opacity: 1 });
 
     gsap.timeline({ onComplete })
-      .to(content, { opacity: 0, duration: 0.1 }, 0)
-      .to(el, { opacity: 0, duration: 0.26, ease: 'power2.out' }, 0.02);
+      .to(content, { opacity: 0, duration: 0.12 }, 0)
+      .to(el, { opacity: 0, duration: 0.3, ease: 'power2.out' }, 0.04);
   };
 
   const playIn = (style: string, cb: () => void) => {
@@ -291,22 +306,21 @@
     else runCurtainOut(cb);
   };
 
-  // Track if we are navigating between pages vs initial fresh page load
-  let isNavigating = false;
-  let activeTransitionStyle = 'curtain';
-
+  // Hook into Astro ViewTransitions
   document.addEventListener('astro:before-preparation', (ev: any) => {
-    if (!overlay) return;
     const targetUrl = ev.to ? new URL(ev.to.href) : window.location;
     const targetStyle = getTransitionForPath(targetUrl.pathname);
-    activeTransitionStyle = targetStyle;
-    isNavigating = true;
+    
+    // Set persistent state on window
+    (window as any).__mommentumNav = { isNavigating: true, style: targetStyle };
 
     const originalLoader = ev.loader;
     ev.loader = async () => {
       await new Promise<void>((resolve) => {
-        overlay.classList.remove('hidden');
-        overlay.style.display = 'block';
+        if (overlay) {
+          overlay.classList.remove('hidden');
+          overlay.style.display = 'block';
+        }
         playIn(targetStyle, () => resolve());
       });
       await originalLoader();
@@ -314,17 +328,20 @@
   });
 
   document.addEventListener('astro:page-load', () => {
-    if (!overlay) return;
-    // ONLY play out if we navigated between pages! Never on initial load/refresh!
-    if (isNavigating) {
-      isNavigating = false;
-      playOut(activeTransitionStyle, () => {
+    const navState = (window as any).__mommentumNav;
+    if (navState && navState.isNavigating && overlay) {
+      navState.isNavigating = false;
+      const currentStyle = navState.style || 'curtain';
+      
+      playOut(currentStyle, () => {
         overlay.classList.add('hidden');
         overlay.style.display = 'none';
       });
     } else {
-      overlay.classList.add('hidden');
-      overlay.style.display = 'none';
+      if (overlay) {
+        overlay.classList.add('hidden');
+        overlay.style.display = 'none';
+      }
     }
   });
 </script>
