@@ -35,7 +35,7 @@ import { ALBUMS } from '../../data/albums';
     <div id="album-webgl-canvas" class="w-full h-full"></div>
 
     <!-- Active Series Information Overlay -->
-    <div class="absolute bottom-6 left-6 md:left-12 max-w-lg p-6 rounded bg-carbon/95 backdrop-blur-xl border border-white/15 pointer-events-auto transition-all duration-300">
+    <div class="absolute bottom-6 left-6 md:left-12 max-w-lg p-6 rounded bg-[#0A0B10]/95 backdrop-blur-xl border border-white/15 pointer-events-auto transition-all duration-300 shadow-2xl">
       <div class="flex items-center gap-3 font-mono text-xs text-graphite mb-1">
         <span id="active-series-num" class="text-white font-bold">ÁLBUM 01</span>
         <span>•</span>
@@ -78,21 +78,19 @@ import { ALBUMS } from '../../data/albums';
 
   if (container) {
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0D0E11, 0.03);
 
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
     camera.position.set(0, 0, 16);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.NoToneMapping;
     container.appendChild(renderer.domElement);
 
     const carouselGroup = new THREE.Group();
     scene.add(carouselGroup);
-
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
-    scene.add(ambientLight);
 
     const textureLoader = new THREE.TextureLoader();
     const itemsCount = ALBUMS.length;
@@ -110,11 +108,16 @@ import { ALBUMS } from '../../data/albums';
       const texture = textureLoader.load(album.coverImage, (tex) => {
         const img = tex.image;
         if (img) {
+          tex.colorSpace = THREE.SRGBColorSpace;
+          tex.generateMipmaps = true;
+          tex.minFilter = THREE.LinearMipmapLinearFilter;
+          tex.magFilter = THREE.LinearFilter;
+
           const imageAspect = img.width / img.height;
           tex.wrapS = THREE.ClampToEdgeWrapping;
           tex.wrapT = THREE.ClampToEdgeWrapping;
 
-          // Object-fit: cover algorithm in WebGL texture UV mapping (zero distortion/stretching)
+          // Object-fit: cover in WebGL UV coords
           if (imageAspect > planeAspect) {
             tex.repeat.set(planeAspect / imageAspect, 1);
             tex.offset.set((1 - planeAspect / imageAspect) / 2, 0);
@@ -126,9 +129,12 @@ import { ALBUMS } from '../../data/albums';
         }
       });
 
+      // Pure authentic photograph material (Zero fog, zero white tint)
       const cardMaterial = new THREE.MeshBasicMaterial({
         map: texture,
         side: THREE.DoubleSide,
+        fog: false,
+        reflectivity: 0,
       });
 
       const mesh = new THREE.Mesh(cardGeometry, cardMaterial);
@@ -258,15 +264,6 @@ import { ALBUMS } from '../../data/albums';
       requestAnimationFrame(animate);
       currentRotation += (targetRotation - currentRotation) * 0.08;
       carouselGroup.rotation.y = currentRotation;
-
-      planes.forEach((plane) => {
-        const worldPos = new THREE.Vector3();
-        plane.getWorldPosition(worldPos);
-        const dist = worldPos.distanceTo(camera.position);
-        const normalizedDist = 1 - Math.min(Math.max((dist - 7) / 18, 0), 1);
-        (plane.material as THREE.MeshBasicMaterial).opacity = Math.max(normalizedDist, 0.4);
-      });
-
       renderer.render(scene, camera);
     };
 
