@@ -263,8 +263,9 @@ import { ALBUMS } from '../../data/albums';
     if (prevBtn) prevBtn.addEventListener('click', () => rotateToIndex(activeIndex - 1));
     if (nextBtn) nextBtn.addEventListener('click', () => rotateToIndex(activeIndex + 1));
 
+    let animId: number;
     const animate = () => {
-      requestAnimationFrame(animate);
+      animId = requestAnimationFrame(animate);
       currentRotation += (targetRotation - currentRotation) * 0.08;
       carouselGroup.rotation.y = currentRotation;
       renderer.render(scene, camera);
@@ -272,11 +273,26 @@ import { ALBUMS } from '../../data/albums';
 
     animate();
 
-    window.addEventListener('resize', () => {
+    const handleResize = () => {
       camera.aspect = container.clientWidth / container.clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(container.clientWidth, container.clientHeight);
-    });
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    const cleanup = () => {
+      if (animId) cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleResize);
+      renderer.dispose();
+      planes.forEach((p) => {
+        p.geometry.dispose();
+        if (p.material instanceof THREE.Material) p.material.dispose();
+      });
+      document.removeEventListener('astro:before-swap', cleanup);
+    };
+
+    document.addEventListener('astro:before-swap', cleanup);
   }
 
   document.addEventListener('astro:page-load', initAlbumGallery);

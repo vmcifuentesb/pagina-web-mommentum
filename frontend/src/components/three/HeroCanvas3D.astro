@@ -143,9 +143,10 @@
     });
 
     let clock = new THREE.Clock();
+    let animId: number;
 
     const animate = () => {
-      requestAnimationFrame(animate);
+      animId = requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
       targetX += (mouseX - targetX) * 0.05;
@@ -171,11 +172,26 @@
 
     animate();
 
-    window.addEventListener('resize', () => {
+    const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    const cleanup = () => {
+      if (animId) cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleResize);
+      renderer.dispose();
+      geometry.dispose();
+      material.dispose();
+      particleGeometry.dispose();
+      particleMaterial.dispose();
+      document.removeEventListener('astro:before-swap', cleanup);
+    };
+
+    document.addEventListener('astro:before-swap', cleanup);
   }
 
   document.addEventListener('astro:page-load', initHero);

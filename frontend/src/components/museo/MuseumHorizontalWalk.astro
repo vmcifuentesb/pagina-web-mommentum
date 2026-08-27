@@ -486,20 +486,38 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
       }
     });
 
+    let animId: number;
     const animate = () => {
-      requestAnimationFrame(animate);
+      animId = requestAnimationFrame(animate);
       camera.lookAt(cameraLookAtTarget);
       renderer.render(scene, camera);
     };
 
     animate();
 
-    window.addEventListener('resize', () => {
+    const handleResize = () => {
       camera.fov = getInitialFov();
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
-    });
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    const cleanup = () => {
+      if (animId) cancelAnimationFrame(animId);
+      window.removeEventListener('resize', handleResize);
+      renderer.dispose();
+      artworks.forEach((art) => {
+        art.frameMesh.geometry.dispose();
+        if (art.frameMesh.material instanceof THREE.Material) art.frameMesh.material.dispose();
+        art.artMesh.geometry.dispose();
+        if (art.artMesh.material instanceof THREE.Material) art.artMesh.material.dispose();
+      });
+      document.removeEventListener('astro:before-swap', cleanup);
+    };
+
+    document.addEventListener('astro:before-swap', cleanup);
   }
 
   document.addEventListener('astro:page-load', setupMuseum);
