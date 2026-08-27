@@ -2,7 +2,7 @@
 // Fullscreen Photographic Lightbox Modal with Touch Swipe & Next / Prev Navigation
 ---
 
-<div id="global-photo-modal" class="fixed inset-0 z-[999990] bg-[#07080B]/98 backdrop-blur-2xl hidden items-center justify-center p-3 sm:p-6 md:p-10 select-none touch-none">
+<div id="global-photo-modal" class="fixed inset-0 z-[9999990] bg-[#07080B]/98 backdrop-blur-2xl hidden items-center justify-center p-3 sm:p-6 md:p-10 select-none touch-none">
   
   <!-- Close Button (Top Right) -->
   <button id="close-lightbox-btn" class="absolute top-4 right-4 sm:top-6 sm:right-6 z-50 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#14161F]/90 border border-white/20 hover:border-white flex items-center justify-center text-white hover:bg-white hover:text-black transition-all font-mono text-sm shadow-xl active:scale-95" aria-label="Cerrar [ESC]" data-cursor="pointer">
@@ -95,7 +95,6 @@
   const closeBtn = document.getElementById('close-lightbox-btn');
   const prevBtn = document.getElementById('lightbox-prev-btn');
   const nextBtn = document.getElementById('lightbox-next-btn');
-  const touchArea = document.getElementById('lightbox-touch-area');
 
   const imgElem = document.getElementById('lightbox-img') as HTMLImageElement;
   const counterElem = document.getElementById('lightbox-counter');
@@ -144,22 +143,26 @@
     renderCurrentPhoto();
   };
 
-  const openModal = (targetUrl: string) => {
+  const openModal = (targetUrl: string, explicitList?: any[]) => {
     if (!modal) return;
 
-    const triggers = Array.from(document.querySelectorAll('[data-lightbox-photo]'));
-    currentPhotoList = triggers.map((el) => ({
-      url: el.getAttribute('data-url') || (el as HTMLImageElement).src || '',
-      title: el.getAttribute('data-title') || '',
-      copy: el.getAttribute('data-copy') || '',
-      album: el.getAttribute('data-album') || '',
-      shutter: el.getAttribute('data-shutter') || '',
-      aperture: el.getAttribute('data-aperture') || '',
-      iso: el.getAttribute('data-iso') || '',
-      dim: el.getAttribute('data-dim') || '',
-    })).filter(p => p.url !== '');
+    if (explicitList && explicitList.length > 0) {
+      currentPhotoList = explicitList;
+    } else {
+      const triggers = Array.from(document.querySelectorAll('[data-lightbox-photo]'));
+      currentPhotoList = triggers.map((el) => ({
+        url: el.getAttribute('data-url') || (el as HTMLImageElement).src || '',
+        title: el.getAttribute('data-title') || '',
+        copy: el.getAttribute('data-copy') || '',
+        album: el.getAttribute('data-album') || '',
+        shutter: el.getAttribute('data-shutter') || '',
+        aperture: el.getAttribute('data-aperture') || '',
+        iso: el.getAttribute('data-iso') || '',
+        dim: el.getAttribute('data-dim') || '',
+      })).filter(p => p.url !== '');
+    }
 
-    const foundIdx = currentPhotoList.findIndex(p => p.url === targetUrl);
+    const foundIdx = currentPhotoList.findIndex(p => p.url === targetUrl || targetUrl.includes(p.url) || p.url.includes(targetUrl));
     currentIndex = foundIdx !== -1 ? foundIdx : 0;
 
     renderCurrentPhoto();
@@ -175,6 +178,10 @@
     modal.classList.remove('flex');
     document.body.style.overflow = 'auto';
   };
+
+  // Expose global helper for any gallery or button
+  window['openPhotoModal'] = openModal;
+  window['closePhotoModal'] = closeModal;
 
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
   if (prevBtn) prevBtn.addEventListener('click', showPrevPhoto);
@@ -222,17 +229,13 @@
     }
   });
 
-  // Attach click listener to all trigger elements
-  const attachTriggers = () => {
-    document.querySelectorAll('[data-lightbox-photo]').forEach((el) => {
-      el.addEventListener('click', (e) => {
-        e.preventDefault();
-        const url = el.getAttribute('data-url') || (el as HTMLImageElement).src || '';
-        if (url) openModal(url);
-      });
-    });
-  };
-
-  attachTriggers();
-  document.addEventListener('astro:page-load', attachTriggers);
+  // Global event delegation for all lightbox photo elements
+  document.addEventListener('click', (e) => {
+    const trigger = (e.target as HTMLElement).closest('[data-lightbox-photo]');
+    if (trigger) {
+      e.preventDefault();
+      const url = trigger.getAttribute('data-url') || (trigger as HTMLImageElement).src || '';
+      if (url) openModal(url);
+    }
+  });
 </script>

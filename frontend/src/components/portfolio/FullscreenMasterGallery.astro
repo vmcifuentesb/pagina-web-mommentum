@@ -224,19 +224,9 @@ const photos = album.photos;
   const openLightbox = () => {
     const photo = photos[activeIndex];
     if (!photo) return;
-    const triggerEl = document.createElement('div');
-    triggerEl.setAttribute('data-lightbox-photo', 'true');
-    triggerEl.setAttribute('data-url', photo.url);
-    triggerEl.setAttribute('data-title', photo.title);
-    triggerEl.setAttribute('data-copy', photo.anitaCopy);
-    triggerEl.setAttribute('data-album', albumTitle);
-    triggerEl.setAttribute('data-shutter', photo.shutter);
-    triggerEl.setAttribute('data-aperture', photo.aperture);
-    triggerEl.setAttribute('data-iso', photo.iso);
-    triggerEl.setAttribute('data-dim', photo.dimensions);
-    document.body.appendChild(triggerEl);
-    triggerEl.click();
-    triggerEl.remove();
+    if (typeof window.openPhotoModal === 'function') {
+      window.openPhotoModal(photo.url);
+    }
   };
 
   if (stageImg) stageImg.addEventListener('click', openLightbox);

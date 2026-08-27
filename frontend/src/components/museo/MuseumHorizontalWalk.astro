@@ -448,6 +448,21 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
+    // Mouse wheel navigation for Museum
+    let wheelCooldown = false;
+    window.addEventListener('wheel', (e) => {
+      if (wheelCooldown) return;
+      if (Math.abs(e.deltaY) > 20 || Math.abs(e.deltaX) > 20) {
+        wheelCooldown = true;
+        if (e.deltaY > 0 || e.deltaX > 0) {
+          slideToArtwork(activeIndex + 1, isStraightView);
+        } else {
+          slideToArtwork(activeIndex - 1, isStraightView);
+        }
+        setTimeout(() => { wheelCooldown = false; }, 380);
+      }
+    }, { passive: true });
+
     container.addEventListener('click', (e) => {
       if (Math.abs(totalDragDist) > 15 || Math.abs(touchDistX) > 15) return;
       const rect = container.getBoundingClientRect();

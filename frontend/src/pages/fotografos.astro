@@ -1,132 +1,176 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { PHOTOGRAPHERS } from '../data/photographers';
+import { CREATOR } from '../data/creator';
 import { ALL_PHOTOS } from '../data/albums';
 ---
 
-<BaseLayout title="Fotógrafos & Catálogo de Obras // MOMMENTUM">
+<BaseLayout title="Fotógrafos & Autores // MOMMENTUM">
   
-  <div class="pt-36 pb-32 bg-obsidian text-pure">
-    <div class="w-full max-w-7xl mx-auto px-6 md:px-12">
+  <div class="pt-32 sm:pt-36 pb-32 bg-obsidian text-pure">
+    <div class="w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-12">
       
-      <!-- Catalog Header matching V1 -->
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16 border-b border-white/10 pb-12">
+      <!-- Catalog Header Full Width -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-white/10 pb-8">
         <div>
-          <span class="font-mono text-xs tracking-[0.25em] text-graphite uppercase">// COMUNIDAD DE AUTOR</span>
-          <h1 class="font-condensed text-5xl sm:text-7xl md:text-8xl uppercase font-bold tracking-tight text-pure mt-2 leading-none">
-            FOTÓGRAFOS & OBRAS.
+          <a href="/" class="font-mono text-xs text-graphite hover:text-white mb-2 block" data-cursor="pointer">← VOLVER AL INICIO</a>
+          <span class="font-mono text-xs tracking-[0.25em] text-graphite uppercase">// COMUNIDAD & AUTORES</span>
+          <h1 class="font-condensed text-4xl sm:text-6xl md:text-7xl uppercase font-bold tracking-tight text-white mt-1 leading-none">
+            FOTÓGRAFOS.
           </h1>
-          <p class="font-body text-base text-silver/80 mt-4 max-w-xl">
-            Colegas y directores de fotografía que colaboran con MOMMENTUM. Explora sus perfiles de autor y obras destacadas.
+          <p class="font-body text-xs sm:text-sm text-silver/80 mt-3 max-w-xl">
+            Perfiles de autor y creadores de contenido fotográfico de MOMMENTUM.
           </p>
         </div>
-
-        <!-- Filter Controls -->
-        <div class="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-wider">
-          <button class="filter-photographer-btn active px-4 py-2 rounded bg-pure text-obsidian font-bold transition-all" data-filter="all" data-cursor="pointer">
-            TODOS ({PHOTOGRAPHERS.length})
-          </button>
-          {PHOTOGRAPHERS.map((p) => (
-            <button class="filter-photographer-btn px-4 py-2 rounded border border-white/10 text-graphite hover:text-pure hover:border-white/30 transition-all" data-filter={p.id} data-cursor="pointer">
-              {p.name.split(' ')[0]}
-            </button>
-          ))}
-        </div>
       </div>
 
-      <!-- Photographers Profiles & Featured Works Grid -->
-      <div id="photographers-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-        {PHOTOGRAPHERS.map((photographer) => (
-          <article 
-            class="photographer-card group bg-carbon rounded-lg overflow-hidden border border-white/10 hover:border-white transition-all duration-500 flex flex-col justify-between"
-            data-author-id={photographer.id}
-          >
-            <div>
-              <!-- Featured Work Image -->
-              <div 
-                class="relative aspect-[4/3] w-full overflow-hidden bg-obsidian cursor-pointer"
-                data-lightbox-photo
-                data-url={photographer.featuredShot}
-                data-title={`Obra Destacada // ${photographer.name}`}
-                data-copy={photographer.bio}
-                data-album={photographer.role}
-                data-cursor="view"
-              >
-                <img 
-                  src={photographer.featuredShot} 
-                  alt={photographer.name}
-                  class="w-full h-full object-cover filter contrast-125 group-hover:scale-105 transition-transform duration-700" 
-                />
-                <div class="absolute top-3 right-3 bg-obsidian/85 px-2.5 py-1 rounded font-mono text-[9px] text-white border border-white/10">
-                  OBRA DESTACADA
-                </div>
-              </div>
-
-              <!-- Author Info -->
-              <div class="p-6">
-                <div class="flex items-center gap-4 mb-4">
-                  <div class="w-12 h-12 rounded-full overflow-hidden border border-white/30 flex-shrink-0">
-                    <img src={photographer.avatarUrl} alt={photographer.name} class="w-full h-full object-cover" />
-                  </div>
-                  <div>
-                    <h3 class="font-condensed text-2xl font-bold uppercase text-white group-hover:text-silver transition-colors">
-                      {photographer.name}
-                    </h3>
-                    <span class="font-mono text-[10px] text-graphite uppercase">{photographer.role}</span>
-                  </div>
-                </div>
-
-                <p class="font-body text-xs text-silver/80 leading-relaxed mb-4">
-                  {photographer.bio}
-                </p>
-                <div class="font-mono text-[10px] text-graphite">
-                  ESPECIALIDAD: <span class="text-silver">{photographer.specialty}</span>
-                </div>
+      <!-- Photographers Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-16">
+        
+        <!-- 1. Principal Creator: Victor Cifuentes -->
+        <article class="bg-carbon rounded-xl overflow-hidden border border-white/20 hover:border-white transition-all duration-500 flex flex-col justify-between shadow-2xl group">
+          <div>
+            <!-- Featured Work -->
+            <div 
+              class="relative aspect-[4/3] w-full overflow-hidden bg-obsidian cursor-pointer"
+              data-lightbox-photo
+              data-url="/fotografias/Antigua%20Guatemala/Portada.jpg"
+              data-title="Obra Destacada // Victor Cifuentes"
+              data-copy="Fotografías y Momentos"
+              data-album="ANTIGUA GUATEMALA"
+              data-cursor="view"
+            >
+              <img 
+                src="/fotografias/Antigua%20Guatemala/Portada.jpg" 
+                alt="Victor Cifuentes"
+                class="w-full h-full object-cover filter contrast-125 group-hover:scale-105 transition-transform duration-700" 
+              />
+              <div class="absolute top-3 right-3 bg-obsidian/90 backdrop-blur-md px-2.5 py-1 rounded font-mono text-[9px] text-white border border-white/15">
+                AUTOR PRINCIPAL
               </div>
             </div>
 
-            <!-- Card Footer -->
-            <div class="p-6 pt-0 border-t border-white/5 mt-4 flex items-center justify-between font-mono text-xs">
-              <span class="text-graphite">INSTAGRAM:</span>
-              <a 
-                href={photographer.instagram} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                class="text-white hover:underline font-bold"
-                data-cursor="pointer"
-              >
-                {photographer.handle} ↗
-              </a>
+            <!-- Author Info -->
+            <div class="p-6">
+              <div class="flex items-center gap-4 mb-4">
+                <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-white/40 flex-shrink-0 bg-obsidian">
+                  <img src={CREATOR.portraitUrl} alt={CREATOR.name} class="w-full h-full object-cover" />
+                </div>
+                <div>
+                  <h3 class="font-condensed text-2xl font-bold uppercase text-white group-hover:text-silver transition-colors">
+                    {CREATOR.name}
+                  </h3>
+                  <span class="font-mono text-[10px] text-graphite uppercase">DIRECTOR & CREADOR</span>
+                </div>
+              </div>
+
+              <p class="font-body text-xs text-silver/90 leading-relaxed mb-4">
+                {CREATOR.bio}
+              </p>
+              
+              <div class="space-y-1 font-mono text-[10px] text-graphite border-t border-white/10 pt-3">
+                <div>UBICACIÓN: <span class="text-white font-bold">{CREATOR.location}</span></div>
+                <div>ENFOQUE: <span class="text-silver">Retrato, Urbana, Devoción y Viajes</span></div>
+              </div>
             </div>
-          </article>
-        ))}
+          </div>
+
+          <!-- Card Footer -->
+          <div class="p-6 pt-0 border-t border-white/10 mt-4 flex items-center justify-between font-mono text-xs">
+            <a 
+              href="/quien-soy" 
+              class="text-silver hover:text-white font-bold hover:underline"
+              data-cursor="pointer"
+            >
+              VER PERFIL COMPLETO →
+            </a>
+            <a 
+              href={CREATOR.instagram} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="text-white hover:underline font-bold"
+              data-cursor="pointer"
+            >
+              {CREATOR.instagramHandle} ↗
+            </a>
+          </div>
+        </article>
+
+        <!-- 2. Upcoming Slot Placeholder 1 -->
+        <article class="bg-[#0A0B10] rounded-xl overflow-hidden border border-white/10 border-dashed flex flex-col justify-between p-6 sm:p-8 text-center relative group min-h-[420px]">
+          <div class="flex flex-col items-center justify-center my-auto">
+            <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-mono text-xl text-graphite mb-4 group-hover:border-white/30 transition-colors">
+              +
+            </div>
+            <span class="font-mono text-[10px] text-graphite uppercase tracking-widest mb-1">
+              // ESPACIO DISPONIBLE
+            </span>
+            <h3 class="font-condensed text-3xl font-bold uppercase text-white/80">
+              PRÓXIMAMENTE.
+            </h3>
+            <p class="font-body text-xs text-silver/60 mt-2 max-w-xs leading-relaxed">
+              Pronto se sumarán nuevos fotógrafos, directores de arte y colaboradores invitados a la plataforma.
+            </p>
+          </div>
+
+          <div class="pt-4 border-t border-white/5 font-mono text-[10px] text-graphite">
+            POSTULACIONES ABIERTAS // 2026
+          </div>
+        </article>
+
+        <!-- 3. Upcoming Slot Placeholder 2 -->
+        <article class="bg-[#0A0B10] rounded-xl overflow-hidden border border-white/10 border-dashed flex flex-col justify-between p-6 sm:p-8 text-center relative group min-h-[420px]">
+          <div class="flex flex-col items-center justify-center my-auto">
+            <div class="w-16 h-16 rounded-full bg-white/5 border border-white/10 flex items-center justify-center font-mono text-xl text-graphite mb-4 group-hover:border-white/30 transition-colors">
+              ✦
+            </div>
+            <span class="font-mono text-[10px] text-graphite uppercase tracking-widest mb-1">
+              // COLABORACIONES
+            </span>
+            <h3 class="font-condensed text-3xl font-bold uppercase text-white/80">
+              PRÓXIMAMENTE.
+            </h3>
+            <p class="font-body text-xs text-silver/60 mt-2 max-w-xs leading-relaxed">
+              Espacio reservado para series documentales y proyectos colectivos de fotografía artística.
+            </p>
+          </div>
+
+          <div class="pt-4 border-t border-white/5 font-mono text-[10px] text-graphite">
+            MOMMENTUM RESIDENCY // SERIES
+          </div>
+        </article>
+
       </div>
 
-      <!-- Additional Curatorial Works Feed matching V1 -->
-      <div class="border-t border-white/10 pt-16">
-        <div class="mb-8">
-          <span class="font-mono text-xs text-graphite tracking-[0.25em] uppercase block">// CATÁLOGO GENERAL</span>
-          <h2 class="font-condensed text-3xl sm:text-4xl font-bold uppercase text-white">
-            OBRAS EN COLABORACIÓN.
-          </h2>
+      <!-- General Curatorial Showcase -->
+      <div class="border-t border-white/10 pt-12">
+        <div class="mb-6 flex items-center justify-between">
+          <div>
+            <span class="font-mono text-xs text-graphite tracking-[0.25em] uppercase block">// CATÁLOGO DESTACADO</span>
+            <h2 class="font-condensed text-3xl sm:text-4xl font-bold uppercase text-white">
+              OBRAS DE AUTOR.
+            </h2>
+          </div>
+          <a href="/portafolio" class="font-mono text-xs text-silver hover:text-white" data-cursor="pointer">
+            VER TODOS LOS ÁLBUMES →
+          </a>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
           {ALL_PHOTOS.slice(0, 8).map((photo) => (
             <div 
-              class="group relative aspect-[3/4] rounded bg-carbon overflow-hidden border border-white/10 hover:border-white transition-all cursor-pointer"
+              class="group relative aspect-[3/4] rounded-lg bg-carbon overflow-hidden border border-white/10 hover:border-white transition-all cursor-pointer shadow-lg"
               data-lightbox-photo
               data-url={photo.url}
               data-title={photo.title}
               data-copy={photo.anitaCopy}
-              data-album="ARCHIVO DE OBRAS"
+              data-album="ARCHIVO DE AUTOR"
               data-shutter={photo.shutter}
               data-aperture={photo.aperture}
               data-iso={photo.iso}
               data-dim={photo.dimensions}
               data-cursor="view"
             >
-              <img src={photo.url} alt={photo.title} class="w-full h-full object-cover filter contrast-125 group-hover:scale-105 transition-transform duration-500" />
+              <img src={photo.url} alt={photo.title} class="w-full h-full object-cover filter contrast-125 group-hover:scale-105 transition-transform duration-500" loading="lazy" />
               <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-transparent to-transparent opacity-80 group-hover:opacity-30 transition-opacity"></div>
               <div class="absolute bottom-3 left-3 right-3 font-mono text-[9px] text-white truncate">
                 {photo.title}
@@ -140,44 +184,3 @@ import { ALL_PHOTOS } from '../data/albums';
   </div>
 
 </BaseLayout>
-
-<script>
-  import gsap from 'gsap';
-
-  const filterBtns = document.querySelectorAll('.filter-photographer-btn');
-  const cards = document.querySelectorAll('.photographer-card');
-
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => {
-        b.classList.remove('active', 'bg-pure', 'text-obsidian', 'font-bold');
-        b.classList.add('text-graphite', 'border-white/10');
-      });
-      btn.classList.add('active', 'bg-pure', 'text-obsidian', 'font-bold');
-      btn.classList.remove('text-graphite', 'border-white/10');
-
-      const filter = btn.getAttribute('data-filter');
-
-      cards.forEach(card => {
-        const authorId = card.getAttribute('data-author-id');
-        if (filter === 'all' || authorId === filter) {
-          gsap.to(card, {
-            autoAlpha: 1,
-            scale: 1,
-            duration: 0.4,
-            display: 'flex',
-            ease: 'power2.out'
-          });
-        } else {
-          gsap.to(card, {
-            autoAlpha: 0,
-            scale: 0.95,
-            duration: 0.3,
-            display: 'none',
-            ease: 'power2.in'
-          });
-        }
-      });
-    });
-  });
-</script>

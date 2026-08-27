@@ -1,35 +1,41 @@
 ---
-// Split-Curtain Page Transition: Two panels opening from center to sides and closing to center
+// Split-Curtain Page Transition: Theatrical Dual-Panel Reveal (Cinematic, Visible & Zero Flicker)
 ---
 
-<div id="curtain-transition-container" class="fixed inset-0 z-[999999] pointer-events-none select-none flex">
+<div id="curtain-transition-container" class="fixed inset-0 z-[9999999] pointer-events-none select-none flex overflow-hidden hidden" style="will-change: transform;">
   
   <!-- Left Curtain Panel -->
   <div 
     id="curtain-left" 
-    class="w-1/2 h-full bg-[#07080B] border-r border-white/20 transform-gpu transition-transform duration-500 ease-out origin-left flex items-center justify-end pr-3"
+    class="w-1/2 h-full bg-[#07080B] border-r border-white/20 flex items-center justify-end pr-4 shadow-[10px_0_30px_rgba(0,0,0,0.8)]"
+    style="transform: translate3d(-100%, 0, 0); will-change: transform;"
   >
-    <div class="w-1 h-16 rounded-full bg-white/20"></div>
+    <div class="w-1 h-20 rounded-full bg-white/25"></div>
   </div>
 
   <!-- Right Curtain Panel -->
   <div 
     id="curtain-right" 
-    class="w-1/2 h-full bg-[#07080B] border-l border-white/20 transform-gpu transition-transform duration-500 ease-out origin-right flex items-center justify-start pl-3"
+    class="w-1/2 h-full bg-[#07080B] border-l border-white/20 flex items-center justify-start pl-4 shadow-[-10px_0_30px_rgba(0,0,0,0.8)]"
+    style="transform: translate3d(100%, 0, 0); will-change: transform;"
   >
-    <div class="w-1 h-16 rounded-full bg-white/20"></div>
+    <div class="w-1 h-20 rounded-full bg-white/25"></div>
   </div>
 
-  <!-- Center Monogram Watermark during transition -->
+  <!-- Center Monogram Watermark -->
   <div 
     id="curtain-center-badge" 
-    class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0 transition-opacity duration-300 flex flex-col items-center"
+    class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0 flex flex-col items-center z-20"
+    style="will-change: transform, opacity;"
   >
-    <span class="font-condensed text-2xl sm:text-3xl font-bold tracking-[0.25em] text-white uppercase">
+    <div class="w-12 h-12 rounded-full border border-white/20 bg-[#14161F]/80 backdrop-blur-md flex items-center justify-center mb-3">
+      <span class="font-condensed text-xl font-bold text-white tracking-widest">M</span>
+    </div>
+    <span class="font-condensed text-3xl sm:text-4xl font-bold tracking-[0.25em] text-white uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.3)]">
       MOMMENTUM
     </span>
-    <span class="font-mono text-[9px] text-graphite tracking-widest uppercase mt-1">
-      FOTOGRAFÍAS
+    <span class="font-mono text-[10px] text-graphite tracking-[0.3em] uppercase mt-1.5 font-bold">
+      FOTOGRAFÍAS & MOMENTOS
     </span>
   </div>
 
@@ -43,45 +49,72 @@
   const curtainRight = document.getElementById('curtain-right');
   const centerBadge = document.getElementById('curtain-center-badge');
 
-  // Open curtains on page entry
-  const openCurtains = () => {
-    if (!container || !curtainLeft || !curtainRight) return;
-    
-    // Set initial state closed
+  const isNavigating = sessionStorage.getItem('mommentum_navigating') === 'true';
+
+  if (isNavigating && container && curtainLeft && curtainRight) {
+    sessionStorage.removeItem('mommentum_navigating');
+
+    container.classList.remove('hidden');
+    container.style.display = 'flex';
+    document.documentElement.classList.remove('curtain-covering');
+
+    // Start with curtains fully closed and badge visible
     gsap.set(curtainLeft, { xPercent: 0 });
     gsap.set(curtainRight, { xPercent: 0 });
     if (centerBadge) gsap.set(centerBadge, { opacity: 1, scale: 1 });
 
+    // Theatrical Opening Sequence
     const tl = gsap.timeline({
+      delay: 0.12,
       onComplete: () => {
-        container.style.pointerEvents = 'none';
+        if (container) {
+          container.classList.add('hidden');
+          container.style.display = 'none';
+        }
       }
     });
 
     if (centerBadge) {
-      tl.to(centerBadge, { opacity: 0, scale: 0.9, duration: 0.25, ease: 'power2.in' }, 0.05);
+      tl.to(centerBadge, { 
+        opacity: 0, 
+        scale: 0.88, 
+        duration: 0.3, 
+        ease: 'power2.in' 
+      }, 0);
     }
 
     tl.to(curtainLeft, {
       xPercent: -100,
-      duration: 0.5,
+      duration: 0.6,
       ease: 'power3.inOut'
-    }, 0.15)
+    }, 0.1)
     .to(curtainRight, {
       xPercent: 100,
-      duration: 0.5,
+      duration: 0.6,
       ease: 'power3.inOut'
-    }, 0.15);
-  };
+    }, 0.1);
 
-  // Close curtains on internal page navigation
+  } else {
+    document.documentElement.classList.remove('curtain-covering');
+    if (container) {
+      container.classList.add('hidden');
+      container.style.display = 'none';
+    }
+  }
+
+  // Theatrical Closing Sequence
   const closeCurtainsAndNavigate = (href: string) => {
     if (!container || !curtainLeft || !curtainRight) {
       window.location.href = href;
       return;
     }
 
+    sessionStorage.setItem('mommentum_navigating', 'true');
+    container.classList.remove('hidden');
+    container.style.display = 'flex';
     container.style.pointerEvents = 'auto';
+
+    gsap.killTweensOf([curtainLeft, curtainRight, centerBadge]);
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -89,26 +122,31 @@
       }
     });
 
-    tl.to(curtainLeft, {
+    tl.fromTo(curtainLeft, { xPercent: -100 }, {
       xPercent: 0,
-      duration: 0.4,
+      duration: 0.5,
       ease: 'power3.inOut'
     }, 0)
-    .to(curtainRight, {
+    .fromTo(curtainRight, { xPercent: 100 }, {
       xPercent: 0,
-      duration: 0.4,
+      duration: 0.5,
       ease: 'power3.inOut'
     }, 0);
 
     if (centerBadge) {
-      tl.fromTo(centerBadge, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.25, ease: 'power2.out' }, 0.2);
+      tl.fromTo(centerBadge, { 
+        opacity: 0, 
+        scale: 0.85 
+      }, { 
+        opacity: 1, 
+        scale: 1, 
+        duration: 0.35, 
+        ease: 'power2.out' 
+      }, 0.15);
     }
   };
 
-  // Execute curtain opening on page load
-  openCurtains();
-
-  // Listen to navigation clicks
+  // Intercept all internal navigation links
   document.addEventListener('click', (e) => {
     const target = (e.target as HTMLElement).closest('a');
     if (!target) return;
@@ -116,7 +154,6 @@
     const href = target.getAttribute('href');
     if (!href) return;
 
-    // Only intercept internal relative page transitions
     if (
       href.startsWith('/') && 
       !href.startsWith('#') && 

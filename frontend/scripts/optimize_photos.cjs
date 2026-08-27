@@ -2,38 +2,78 @@ const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
 
-const baseDir = path.join(__dirname, '../public/fotografias');
+const sourceDir = 'd:/ATLAS/Marcas/MOMMENTUM/FOTOGRAFIAS';
+const targetDirs = [
+  'd:/ATLAS/Marcas/MOMMENTUM/pagina-web-mommentum/frontend/public/fotografias',
+  'd:/ATLAS/Marcas/MOMMENTUM/pagina-web-mommentum-final/frontend/public/fotografias'
+];
 
-async function processDirectory(dir) {
-  const entries = fs.readdirSync(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      await processDirectory(fullPath);
-    } else if (/\.(jpe?g|png)$/i.test(entry.name)) {
-      try {
-        const stats = fs.statSync(fullPath);
-        // Only optimize if > 300KB
-        if (stats.size > 300 * 1024) {
-          const buffer = fs.readFileSync(fullPath);
-          const optimized = await sharp(buffer)
-            .resize({ width: 1600, height: 1600, fit: 'inside', withoutEnlargement: true })
-            .jpeg({ quality: 82, progressive: true })
-            .toBuffer();
-          fs.writeFileSync(fullPath, optimized);
-          console.log(`Optimized ${entry.name}: ${(stats.size / 1024 / 1024).toFixed(2)}MB -> ${(optimized.length / 1024).toFixed(0)}KB`);
+async function optimizeAll() {
+  console.log('Starting high-performance photographic optimization with sharp...');
+  
+  // Clean target directories
+  for (const targetBase of targetDirs) {
+    if (fs.existsSync(targetBase)) {
+      fs.rmSync(targetBase, { recursive: true, force: true });
+    }
+    fs.mkdirSync(targetBase, { recursive: true });
+  }
+
+  const folders = fs.readdirSync(sourceDir).filter(f => fs.statSync(path.join(sourceDir, f)).isDirectory());
+  let totalSaved = 0;
+  let totalOriginal = 0;
+
+  for (const folder of folders) {
+    const srcFolder = path.join(sourceDir, folder);
+    const files = fs.readdirSync(srcFolder);
+
+    for (const targetBase of targetDirs) {
+      const dstFolder = path.join(targetBase, folder);
+      fs.mkdirSync(dstFolder, { recursive: true });
+    }
+
+    for (const file of files) {
+      const srcFile = path.join(srcFolder, file);
+      const originalStat = fs.statSync(srcFile);
+      totalOriginal += originalStat.size;
+
+      // Optimize image: max dimension 2000px, quality 84, mozjpeg/progressive for instant rendering
+      const isJpeg = file.toLowerCase().endsWith('.jpg') || file.toLowerCase().endsWith('.jpeg');
+      
+      for (const targetBase of targetDirs) {
+        const dstFile = path.join(targetBase, folder, file);
+        if (isJpeg) {
+          await sharp(srcFile)
+            .rotate() // auto-orient based on EXIF
+            .resize({
+              width: 2048,
+              height: 2048,
+              fit: 'inside',
+              withoutEnlargement: true
+            })
+            .jpeg({
+              quality: 84,
+              progressive: true,
+              mozjpeg: true
+            })
+            .toFile(dstFile);
+        } else {
+          fs.copyFileSync(srcFile, dstFile);
         }
-      } catch (err) {
-        console.error(`Error processing ${entry.name}:`, err.message);
       }
+
+      const dstSample = path.join(targetDirs[0], folder, file);
+      const optimizedStat = fs.statSync(dstSample);
+      totalSaved += (originalStat.size - optimizedStat.size);
+      console.log(`✓ ${folder}/${file}: ${(originalStat.size/1024/1024).toFixed(2)}MB -> ${(optimizedStat.size/1024).toFixed(0)}KB (-${Math.round((1 - optimizedStat.size/originalStat.size)*100)}%)`);
     }
   }
+
+  console.log(`\n🎉 Optimization Complete!`);
+  console.log(`Original total size: ${(totalOriginal/1024/1024).toFixed(1)} MB`);
+  console.log(`Saved bandwidth: ${(totalSaved/1024/1024).toFixed(1)} MB (${Math.round(totalSaved/totalOriginal*100)}% reduction!)`);
 }
 
-async function main() {
-  console.log('Starting high-speed photo optimization...');
-  await processDirectory(baseDir);
-  console.log('Optimization complete! All photos are now lightweight and high-definition.');
-}
-
-main();
+optimizeAll().catch(err => {
+  console.error('Optimization error:', err);
+});

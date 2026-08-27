@@ -1,45 +1,35 @@
-name: Deploy MOMMENTUM Web to Hosting via FTP
+name: Deploy MOMMENTUM to Hosting
 
 on:
   push:
     branches:
       - main
-      - master
-  workflow_dispatch:
 
 jobs:
   web-deploy:
-    name: Build & Deploy via FTP
+    name: 🎉 Build & Deploy via FTP
     runs-on: ubuntu-latest
     steps:
-      - name: 🚚 Get latest code
-        uses: actions/checkout@v4
+    - name: 🚚 Get latest code
+      uses: actions/checkout@v4
 
-      - name: ⚙️ Use Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
-          cache-dependency-path: './frontend/package-lock.json'
+    - name: ⚙️ Use Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
 
-      - name: 📦 Install Dependencies
-        run: |
-          cd frontend
-          npm install
+    - name: 🔨 Install Dependencies & Build
+      run: |
+        cd frontend
+        npm install
+        npm run build
 
-      - name: 🔨 Build Astro Project
-        run: |
-          cd frontend
-          npm run build
-
-      - name: 🚀 Sync Files via FTP to mommentum.promptendweb.com
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./frontend/dist/
-          server-dir: mommentum.promptendweb.com/
-          protocol: ftp
-          port: 21
-          dangerous-clean-slate: false
+    - name: 🚀 Sync Files to Server via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: 66.225.221.182
+        username: lhqczrfu
+        password: 4Yr4r773rWhlnD
+        local-dir: frontend/dist/
+        server-dir: mommentum.promptendweb.com/
+        dangerous-clean-slate: false
