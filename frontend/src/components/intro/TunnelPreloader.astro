@@ -1,13 +1,13 @@
 ---
-// Preloader Cinemático: Túnel 3D Puro Original (5s) -> Se muestra SOLO en la primera visita
+// Preloader Cinemático: Túnel 3D Puro Original -> Se muestra SOLO en la primera visita o replay
 ---
 
-<div id="cinematic-preloader" class="fixed inset-0 z-[999999] bg-[#050608] flex items-center justify-center select-none overflow-hidden">
+<div id="cinematic-preloader" class="fixed inset-0 z-[999999] bg-[#050608] flex items-center justify-center select-none overflow-hidden" style="display: none;">
   
   <!-- 3D Three.js Hyperspace Photo Tunnel Canvas -->
   <div id="preloader-tunnel-canvas" class="absolute inset-0 z-10"></div>
 
-  <!-- Clean Minimalist HUD Overlay (No technical jargon) -->
+  <!-- Clean Minimalist HUD Overlay -->
   <div id="preloader-hud" class="absolute inset-0 z-30 pointer-events-none p-6 md:p-10 flex flex-col justify-between">
     <div class="flex items-center justify-between font-mono text-xs text-white/70">
       <div class="flex items-center gap-2">
@@ -15,7 +15,7 @@
         <span class="font-bold tracking-widest uppercase text-white">MOMMENTUM</span>
       </div>
       <div>
-        <span id="preloader-timer" class="font-bold text-white font-mono">5.0s</span>
+        <span id="preloader-timer" class="font-bold text-white font-mono">4.0s</span>
       </div>
     </div>
 
@@ -25,13 +25,13 @@
         MOMMENTUM
       </h2>
       <p id="preloader-subtext" class="font-mono text-xs text-silver/70 tracking-widest uppercase mt-2">
-        CARGANDO GALERÍA
+        CARGANDO EXPERIENCIA
       </p>
     </div>
 
     <div class="flex items-center justify-between font-mono text-[10px] text-white/40">
       <span>SERIES 2026</span>
-      <button id="skip-intro-btn" class="pointer-events-auto px-4 py-1.5 rounded bg-white/10 hover:bg-white text-white hover:text-black transition-all">
+      <button id="skip-intro-btn" class="pointer-events-auto px-4 py-1.5 rounded bg-white/10 hover:bg-white text-white hover:text-black transition-all" data-cursor="pointer">
         SALTAR INTRO [ESC] ↗
       </button>
     </div>
@@ -39,22 +39,43 @@
 
 </div>
 
+<!-- Inline Synchronous Blocker / Removal Script (Executes instantly before paint) -->
+<script is:inline>
+  (function() {
+    const isReplay = window.location.search.includes('replay=1');
+    const alreadySeen = sessionStorage.getItem('mommentum_preloader_seen') === 'true';
+    const preloader = document.getElementById('cinematic-preloader');
+    if (preloader) {
+      if (!alreadySeen || isReplay) {
+        preloader.style.display = 'flex';
+      } else {
+        preloader.remove(); // Never block if already seen
+      }
+    }
+  })();
+</script>
+
 <script>
   import * as THREE from 'three';
   import { ALL_PHOTOS } from '../../data/albums';
 
-  const preloader = document.getElementById('cinematic-preloader');
-  const tunnelContainer = document.getElementById('preloader-tunnel-canvas');
-  const timerElem = document.getElementById('preloader-timer');
-  const skipBtn = document.getElementById('skip-intro-btn');
+  function initIntro() {
+    const preloader = document.getElementById('cinematic-preloader');
+    if (!preloader) return;
 
-  // Check if already seen in this session (unless ?replay=1)
-  const isReplay = window.location.search.includes('replay=1');
-  const alreadySeen = sessionStorage.getItem('mommentum_preloader_seen') === 'true';
+    const isReplay = window.location.search.includes('replay=1');
+    const alreadySeen = sessionStorage.getItem('mommentum_preloader_seen') === 'true';
 
-  if (alreadySeen && !isReplay) {
-    if (preloader) preloader.style.display = 'none';
-  } else {
+    if (alreadySeen && !isReplay) {
+      preloader.remove();
+      return;
+    }
+
+    preloader.style.display = 'flex';
+    const tunnelContainer = document.getElementById('preloader-tunnel-canvas');
+    const timerElem = document.getElementById('preloader-timer');
+    const skipBtn = document.getElementById('skip-intro-btn');
+
     let hasFinished = false;
     let animId: number;
 
@@ -64,18 +85,18 @@
       sessionStorage.setItem('mommentum_preloader_seen', 'true');
       if (animId) cancelAnimationFrame(animId);
       if (preloader) {
-        preloader.style.transition = 'opacity 0.8s ease-out';
+        preloader.style.transition = 'opacity 0.6s ease-out';
         preloader.style.opacity = '0';
         setTimeout(() => {
-          preloader.style.display = 'none';
-        }, 800);
+          preloader.remove();
+        }, 600);
       }
     };
 
-    // Hard Failsafe (5.5s)
+    // Hard Failsafe (4.0s max)
     setTimeout(() => {
       finishIntro();
-    }, 5500);
+    }, 4000);
 
     if (skipBtn) skipBtn.addEventListener('click', finishIntro);
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape') finishIntro(); });
@@ -83,6 +104,7 @@
     const photoUrls = ALL_PHOTOS.slice(0, 18).map(p => p.url);
 
     if (tunnelContainer) {
+      tunnelContainer.innerHTML = '';
       const scene = new THREE.Scene();
       scene.fog = new THREE.FogExp2(0x050608, 0.05);
 
@@ -124,12 +146,12 @@
         animId = requestAnimationFrame(animate);
         const elapsed = (now - startTime) / 1000;
 
-        if (elapsed < 5.0) {
-          const remaining = Math.max(0, 5.0 - elapsed).toFixed(1);
+        if (elapsed < 3.5) {
+          const remaining = Math.max(0, 3.5 - elapsed).toFixed(1);
           if (timerElem) timerElem.textContent = `${remaining}s`;
 
           photoMeshes.forEach((mesh) => {
-            mesh.position.z += 0.22;
+            mesh.position.z += 0.28;
             if (mesh.position.z > 12) {
               mesh.position.z -= photoCount * 5;
             }
@@ -150,4 +172,7 @@
       });
     }
   }
+
+  document.addEventListener('astro:page-load', initIntro);
+  initIntro();
 </script>
