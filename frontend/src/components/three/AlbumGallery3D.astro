@@ -247,12 +247,7 @@ import { ALBUMS } from '../../data/albums';
       if (intersects.length > 0) {
         const clickedPlane = intersects[0].object;
         const clickedIdx = clickedPlane.userData.index;
-        const slug = clickedPlane.userData.slug;
-        if (clickedIdx === activeIndex) {
-          window.location.href = `/portafolio/${slug}`;
-        } else {
-          rotateToIndex(clickedIdx);
-        }
+        rotateToIndex(clickedIdx);
       }
     });
 
