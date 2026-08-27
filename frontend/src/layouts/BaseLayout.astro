@@ -39,6 +39,18 @@ const {
 
       gtag('config', 'G-6ERQXT0EH4');
     </script>
+
+    <!-- Synchronous Transition Blocker in Head (Prevents any raw paint flash) -->
+    <script is:inline>
+      if (sessionStorage.getItem('mommentum_navigating') === 'true') {
+        document.documentElement.classList.add('page-navigating');
+      }
+    </script>
+    <style is:inline>
+      html.page-navigating #transition-studio-overlay {
+        display: block !important;
+      }
+    </style>
   </head>
   <body class="min-h-screen bg-obsidian text-pure overflow-x-hidden font-body antialiased flex flex-col justify-between">
     
