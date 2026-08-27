@@ -19,26 +19,25 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
 }));
 ---
 
-<div id="museum-viewport" class="relative w-full h-screen bg-[#07080B] overflow-hidden select-none cursor-grab active:cursor-grabbing" data-cursor="drag">
+<div id="museum-viewport" class="relative w-full h-[100dvh] bg-[#07080B] overflow-hidden select-none cursor-grab active:cursor-grabbing touch-none" data-cursor="drag">
   
   <!-- Three.js 3D Master Canvas -->
   <div id="museum-3d-canvas" class="w-full h-full"></div>
 
   <!-- Top Header & Masterpiece Selector Tabs Full Width -->
-  <div class="fixed top-24 left-6 right-6 md:left-12 md:right-12 z-30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pointer-events-none">
+  <div class="fixed top-20 sm:top-24 left-4 right-4 sm:left-8 sm:right-8 md:left-12 md:right-12 z-30 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 pointer-events-none">
     <div>
-      <a href="/" class="font-mono text-xs text-graphite hover:text-white mb-1 block pointer-events-auto" data-cursor="pointer">← VOLVER AL INICIO</a>
-      <span class="font-mono text-[10px] text-graphite tracking-[0.25em] uppercase block">// SALA DE EXPOSICIÓN 3D</span>
-      <h1 class="font-condensed text-3xl sm:text-4xl font-bold uppercase text-white">
+      <a href="/" class="font-mono text-[11px] text-graphite hover:text-white mb-0.5 block pointer-events-auto" data-cursor="pointer">← INICIO</a>
+      <h1 class="font-condensed text-2xl sm:text-4xl font-bold uppercase text-white tracking-wider">
         MUSEO DE FOTOGRAFÍAS.
       </h1>
     </div>
 
-    <!-- Masterpiece Switcher Pills -->
-    <div class="flex items-center gap-2 overflow-x-auto max-w-2xl pointer-events-auto bg-carbon/90 backdrop-blur-md p-1.5 rounded-lg border border-white/15">
+    <!-- Masterpiece Switcher Pills (Touch-scrollable) -->
+    <div class="flex items-center gap-1.5 overflow-x-auto max-w-full md:max-w-xl pointer-events-auto bg-[#0E1017]/90 backdrop-blur-md p-1.5 rounded-lg border border-white/15 scrollbar-none">
       {museumMasterpieces.map((item, i) => (
         <button 
-          class={`museum-masterpiece-tab px-3.5 py-1.5 rounded font-mono text-[11px] uppercase transition-all whitespace-nowrap ${i === 0 ? 'bg-pure text-obsidian font-bold' : 'text-graphite hover:text-white'}`}
+          class={`museum-masterpiece-tab px-3 py-1.5 rounded font-mono text-[10px] sm:text-[11px] uppercase transition-all whitespace-nowrap flex-shrink-0 ${i === 0 ? 'bg-white text-[#07080B] font-bold' : 'text-graphite hover:text-white'}`}
           data-index={i}
           data-cursor="pointer"
         >
@@ -48,42 +47,43 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
     </div>
   </div>
 
-  <!-- Bottom Curatorial Card & Navigation Controls -->
-  <div class="fixed bottom-8 left-6 right-6 md:left-12 md:right-12 z-30 flex flex-col md:flex-row items-start md:items-end justify-between gap-6 pointer-events-none">
+  <!-- Bottom Curatorial Card & Touch Navigation Controls -->
+  <div class="fixed bottom-4 sm:bottom-8 left-4 right-4 sm:left-8 sm:right-8 md:left-12 md:right-12 z-30 flex flex-col md:flex-row items-stretch md:items-end justify-between gap-3 sm:gap-6 pointer-events-none">
     
-    <!-- Active Masterpiece Card -->
-    <div class="max-w-md p-6 rounded-xl bg-carbon/95 backdrop-blur-xl border border-white/15 pointer-events-auto shadow-2xl transition-all duration-300">
-      <div class="flex items-center gap-3 font-mono text-xs text-graphite mb-1">
-        <span id="active-art-album" class="text-white font-bold">{museumMasterpieces[0].title}</span>
-        <span>•</span>
+    <!-- Active Masterpiece Card (Compact on Mobile) -->
+    <div class="w-full md:max-w-md p-4 sm:p-6 rounded-xl bg-[#0B0C12]/95 backdrop-blur-xl border border-white/15 pointer-events-auto shadow-2xl transition-all duration-300">
+      <div class="flex items-center justify-between font-mono text-[10px] sm:text-xs text-graphite mb-1">
+        <span id="active-art-album" class="text-white font-bold truncate max-w-[200px]">{museumMasterpieces[0].title}</span>
         <span id="active-art-counter" class="text-silver">OBRA 01 / 0{museumMasterpieces.length}</span>
       </div>
-      <h2 id="active-art-title" class="font-condensed text-2xl sm:text-3xl font-bold uppercase text-white">
+      <h2 id="active-art-title" class="font-condensed text-xl sm:text-2xl font-bold uppercase text-white truncate">
         {museumMasterpieces[0].title}
       </h2>
-      <p id="active-art-desc" class="font-body text-xs text-silver/80 mt-2 line-clamp-2">
+      <p id="active-art-desc" class="font-body text-[11px] sm:text-xs text-silver/80 mt-1 line-clamp-1 sm:line-clamp-2">
         {museumMasterpieces[0].description}
       </p>
 
-      <div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between font-mono text-xs">
-        <button id="btn-toggle-persp" class="text-pure font-bold hover:underline flex items-center gap-1.5" data-cursor="pointer">
-          <span id="persp-icon">🎯</span> <span id="persp-label">ENFOCAR DE FRENTE [ESC]</span>
+      <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between font-mono text-xs gap-2">
+        <button id="btn-toggle-persp" class="text-white font-bold hover:underline flex items-center gap-1.5 text-[11px]" data-cursor="pointer">
+          <span>🎯</span> <span id="persp-label">FRENTE [ESC]</span>
         </button>
-        <a id="active-art-link" href={`/portafolio/${museumMasterpieces[0].albumSlug}`} class="px-3 py-1.5 rounded bg-white/10 hover:bg-white text-white hover:text-obsidian transition-all uppercase font-bold text-[11px]" data-cursor="pointer">
-          ENTRAR AL ÁLBUM ({museumMasterpieces[0].totalPhotos} FOTOS) ↗
+        <a id="active-art-link" href={`/portafolio/${museumMasterpieces[0].albumSlug}`} class="px-3 py-1.5 rounded bg-white/15 hover:bg-white text-white hover:text-black transition-all uppercase font-bold text-[10px] sm:text-[11px] whitespace-nowrap" data-cursor="pointer">
+          ENTRAR AL ÁLBUM ({museumMasterpieces[0].totalPhotos}) ↗
         </a>
       </div>
     </div>
 
-    <!-- Navigation Controls Dock -->
-    <div class="flex items-center gap-4 pointer-events-auto bg-carbon/90 backdrop-blur-md px-5 py-2.5 rounded-lg border border-white/15">
-      <button id="btn-museum-prev" class="text-white hover:text-silver flex items-center gap-2 font-mono text-xs font-bold" data-cursor="pointer">
+    <!-- Navigation Controls Dock (Mobile Touch Friendly) -->
+    <div class="flex items-center justify-between sm:justify-center gap-3 pointer-events-auto bg-[#0B0C12]/90 backdrop-blur-md px-4 py-2.5 rounded-lg border border-white/15 w-full md:w-auto">
+      <button id="btn-museum-prev" class="text-white hover:text-silver flex items-center gap-1.5 font-mono text-xs font-bold py-1 px-2" data-cursor="pointer">
         <span>←</span> ANTERIOR
       </button>
       
-      <span class="font-mono text-[10px] text-graphite hidden sm:inline-block">TECLAS ← / → • ESC: CAMBIAR PERSPECTIVA</span>
+      <span class="font-mono text-[9px] text-graphite uppercase tracking-wider text-center">
+        DESLIZA • ESC: 3D/PLANO
+      </span>
 
-      <button id="btn-museum-next" class="text-white hover:text-silver flex items-center gap-2 font-mono text-xs font-bold" data-cursor="pointer">
+      <button id="btn-museum-next" class="text-white hover:text-silver flex items-center gap-1.5 font-mono text-xs font-bold py-1 px-2" data-cursor="pointer">
         SIGUIENTE <span>→</span>
       </button>
     </div>
@@ -128,17 +128,20 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
   if (container) {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x07080B);
-    scene.fog = new THREE.FogExp2(0x07080B, 0.02);
+    scene.fog = new THREE.FogExp2(0x07080B, 0.018);
 
-    const camera = new THREE.PerspectiveCamera(46, window.innerWidth / window.innerHeight, 0.1, 120);
+    const isMobile = () => window.innerWidth < 768;
+    const getInitialFov = () => isMobile() ? 56 : 46;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const camera = new THREE.PerspectiveCamera(getInitialFov(), window.innerWidth / window.innerHeight, 0.1, 120);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     container.appendChild(renderer.domElement);
 
     // Uniform Soft Ambient
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
     scene.add(ambientLight);
 
     const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
@@ -160,7 +163,7 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
     scene.add(roomGroup);
 
     // Concrete Museum Wall along X
-    const wallGeo = new THREE.PlaneGeometry(240, 20);
+    const wallGeo = new THREE.PlaneGeometry(240, 24);
     const wallMat = new THREE.MeshStandardMaterial({
       color: 0x14161E,
       roughness: 0.9,
@@ -170,7 +173,7 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
     museumWall.position.set(0, 5, -0.3);
     roomGroup.add(museumWall);
 
-    // Museum Architectural Baseboard Moulding (Zócalo de galería)
+    // Museum Architectural Baseboard Moulding
     const mouldingGeo = new THREE.BoxGeometry(240, 0.35, 0.2);
     const mouldingMat = new THREE.MeshStandardMaterial({
       color: 0x0A0B0E,
@@ -194,7 +197,7 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
     roomGroup.add(floor);
 
     let activeIndex = 0;
-    let isStraightView = false; // DEFAULT IS INCLINED 3D PERSPECTIVE!
+    let isStraightView = false;
     const framedArtworks: THREE.Mesh[] = [];
     const raycastMeshes: THREE.Mesh[] = [];
     const frameSpacing = 12.0;
@@ -212,7 +215,7 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
       const frameMesh = new THREE.Mesh(frameGeo, frameMat);
       frameMesh.position.set(xPos, 2.8, 0);
 
-      // Photo Canvas (Grayscale in 3D wall room, color on lightbox)
+      // Photo Canvas
       const photoTexture = textureLoader.load(item.photoUrl, (tex) => {
         const img = tex.image;
         if (img) {
@@ -255,8 +258,6 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
     });
 
     let isTransitioning = false;
-
-    // LookAt Target Vector that always centers the active frame in the camera viewport
     const cameraLookAtTarget = new THREE.Vector3(0, 2.8, 0);
 
     const updateUI = () => {
@@ -269,19 +270,21 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
       if (descElem) descElem.textContent = item.description;
       if (linkElem) {
         linkElem.href = `/portafolio/${item.albumSlug}`;
-        linkElem.textContent = `ENTRAR AL ÁLBUM (${item.totalPhotos} FOTOS) ↗`;
+        linkElem.textContent = `ENTRAR AL ÁLBUM (${item.totalPhotos}) ↗`;
       }
 
       if (perspLabel) {
-        perspLabel.textContent = isStraightView ? 'VISTA EN PERSPECTIVA 3D [ESC]' : 'ENFOCAR DE FRENTE [ESC]';
+        perspLabel.textContent = isStraightView ? 'VISTA 3D [ESC]' : 'FRENTE [ESC]';
       }
 
       masterpieceTabs.forEach((tab, idx) => {
         if (idx === activeIndex) {
-          tab.classList.add('bg-pure', 'text-obsidian', 'font-bold');
+          tab.classList.add('bg-white', 'text-[#07080B]', 'font-bold');
           tab.classList.remove('text-graphite');
+          // Auto scroll active tab into view on mobile
+          tab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         } else {
-          tab.classList.remove('bg-pure', 'text-obsidian', 'font-bold');
+          tab.classList.remove('bg-white', 'text-[#07080B]', 'font-bold');
           tab.classList.add('text-graphite');
         }
       });
@@ -299,18 +302,17 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
 
       isTransitioning = true;
 
-      // When Inclined: camera is shifted right (+3.8), but LOOKS DIRECTLY at targetX (centered!)
-      // When Straight: camera is directly in front of targetX (x: targetX, z: 4.8)
-      const targetCamX = isStraightView ? targetX : targetX + 3.8;
+      const mobile = isMobile();
+      const targetCamX = isStraightView ? targetX : (mobile ? targetX + 2.8 : targetX + 3.8);
       const targetCamY = 2.8;
-      const targetCamZ = isStraightView ? 4.8 : 6.2;
+      const targetCamZ = isStraightView ? (mobile ? 6.2 : 4.8) : (mobile ? 7.6 : 6.2);
 
       // Animate camera position
       gsap.to(camera.position, {
         x: targetCamX,
         y: targetCamY,
         z: targetCamZ,
-        duration: 1.0,
+        duration: 0.9,
         ease: 'power3.inOut',
         onUpdate: () => {
           camera.lookAt(cameraLookAtTarget);
@@ -320,12 +322,12 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
         }
       });
 
-      // Animate lookAt point to lock the active frame directly in the center of the viewport
+      // Animate lookAt point to lock the active frame directly in the center
       gsap.to(cameraLookAtTarget, {
         x: targetX,
         y: 2.8,
         z: 0,
-        duration: 1.0,
+        duration: 0.9,
         ease: 'power3.inOut',
         onUpdate: () => {
           camera.lookAt(cameraLookAtTarget);
@@ -339,7 +341,7 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
           x: targetX,
           y: 7.5,
           z: 3.5,
-          duration: 1.0,
+          duration: 0.9,
           ease: 'power3.inOut',
         });
       }
@@ -349,7 +351,8 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
 
     // Initial setup with active frame dead centered in inclined 3D perspective
     const initX = (0 - (masterpieces.length - 1) / 2) * frameSpacing;
-    camera.position.set(initX + 3.8, 2.8, 6.2);
+    const initialMobile = isMobile();
+    camera.position.set(initialMobile ? initX + 2.8 : initX + 3.8, 2.8, initialMobile ? 7.6 : 6.2);
     cameraLookAtTarget.set(initX, 2.8, 0);
     camera.lookAt(cameraLookAtTarget);
     slideToArtwork(0, false);
@@ -370,7 +373,7 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
       });
     });
 
-    // Keyboard navigation (Arrow keys to slide, Escape / Space to toggle perspective!)
+    // Keyboard navigation
     window.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') slideToArtwork(activeIndex - 1, isStraightView);
       if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') slideToArtwork(activeIndex + 1, isStraightView);
@@ -383,27 +386,36 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
       }
     });
 
-    // Throttled Wheel Scroll
-    let isWheeling = false;
-    container.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      if (isWheeling || isTransitioning) return;
+    // Touch Swipe Gestures for Mobile Phones
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchDistX = 0;
 
-      const delta = e.deltaY || e.deltaX;
-      if (Math.abs(delta) > 20) {
-        isWheeling = true;
-        if (delta > 0) {
+    container.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchDistX = 0;
+      }
+    }, { passive: true });
+
+    container.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1) {
+        touchDistX = e.touches[0].clientX - touchStartX;
+      }
+    }, { passive: true });
+
+    container.addEventListener('touchend', () => {
+      if (Math.abs(touchDistX) > 40) {
+        if (touchDistX < 0) {
           slideToArtwork(activeIndex + 1, isStraightView);
         } else {
           slideToArtwork(activeIndex - 1, isStraightView);
         }
-        setTimeout(() => {
-          isWheeling = false;
-        }, 250);
       }
-    }, { passive: false });
+    });
 
-    // Drag / Swipe Navigation
+    // Mouse Drag Navigation
     let isDragging = false;
     let dragStartX = 0;
     let totalDragDist = 0;
@@ -432,32 +444,12 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
       totalDragDist = e.clientX - dragStartX;
     });
 
-    // Fullscreen Lightbox
-    const openActiveFullscreen = () => {
-      const item = masterpieces[activeIndex];
-      if (!item) return;
-
-      const triggerEl = document.createElement('div');
-      triggerEl.setAttribute('data-lightbox-photo', 'true');
-      triggerEl.setAttribute('data-url', item.photoUrl);
-      triggerEl.setAttribute('data-title', item.title);
-      triggerEl.setAttribute('data-copy', item.anitaCopy);
-      triggerEl.setAttribute('data-album', item.title);
-      triggerEl.setAttribute('data-shutter', item.shutter);
-      triggerEl.setAttribute('data-aperture', item.aperture);
-      triggerEl.setAttribute('data-iso', item.iso);
-      triggerEl.setAttribute('data-dim', item.dimensions);
-      document.body.appendChild(triggerEl);
-      triggerEl.click();
-      triggerEl.remove();
-    };
-
-    // Click on 3D painting: Click toggles between inclined and straight view, double click opens fullscreen
+    // Click on 3D painting
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
     container.addEventListener('click', (e) => {
-      if (Math.abs(totalDragDist) > 15) return;
+      if (Math.abs(totalDragDist) > 15 || Math.abs(touchDistX) > 15) return;
       const rect = container.getBoundingClientRect();
       mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -469,13 +461,7 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
         const clickedMesh = intersects[0].object;
         const clickedIdx = clickedMesh.userData.index;
         if (clickedIdx === activeIndex) {
-          if (!isStraightView) {
-            // First click on active photo: corrects inclination and straightens view
-            slideToArtwork(clickedIdx, true);
-          } else {
-            // Second click when already straight: opens fullscreen Lightbox
-            openActiveFullscreen();
-          }
+          slideToArtwork(clickedIdx, !isStraightView);
         } else {
           slideToArtwork(clickedIdx, isStraightView);
         }
@@ -491,6 +477,7 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
     animate();
 
     window.addEventListener('resize', () => {
+      camera.fov = getInitialFov();
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);

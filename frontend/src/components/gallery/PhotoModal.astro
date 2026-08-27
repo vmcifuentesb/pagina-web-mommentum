@@ -1,22 +1,22 @@
 ---
-// Fullscreen Photographic Lightbox Modal with Next / Prev Navigation
+// Fullscreen Photographic Lightbox Modal with Touch Swipe & Next / Prev Navigation
 ---
 
-<div id="global-photo-modal" class="fixed inset-0 z-[99990] bg-obsidian/95 backdrop-blur-2xl hidden items-center justify-center p-4 md:p-10 select-none">
+<div id="global-photo-modal" class="fixed inset-0 z-[999990] bg-[#07080B]/98 backdrop-blur-2xl hidden items-center justify-center p-3 sm:p-6 md:p-10 select-none touch-none">
   
   <!-- Close Button (Top Right) -->
-  <button id="close-lightbox-btn" class="absolute top-6 right-6 z-50 w-12 h-12 rounded-full border border-white/20 hover:border-white flex items-center justify-center text-white hover:bg-white hover:text-black transition-all font-mono text-sm" aria-label="Cerrar [ESC]" data-cursor="pointer">
+  <button id="close-lightbox-btn" class="absolute top-4 right-4 sm:top-6 sm:right-6 z-50 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#14161F]/90 border border-white/20 hover:border-white flex items-center justify-center text-white hover:bg-white hover:text-black transition-all font-mono text-sm shadow-xl active:scale-95" aria-label="Cerrar [ESC]" data-cursor="pointer">
     ✕
   </button>
 
   <!-- Left Arrow Button (Previous Photo) -->
   <button 
     id="lightbox-prev-btn" 
-    class="absolute left-4 sm:left-6 top-1/2 -translate-y-1/2 z-50 w-12 sm:w-14 h-24 rounded-lg bg-carbon/80 hover:bg-white text-white hover:text-black backdrop-blur-md border border-white/15 flex items-center justify-center transition-all group"
+    class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-50 w-10 sm:w-14 h-20 sm:h-24 rounded-lg bg-[#14161F]/80 hover:bg-white text-white hover:text-black backdrop-blur-md border border-white/15 flex items-center justify-center transition-all group shadow-xl active:scale-95"
     aria-label="Foto Anterior [←]"
     data-cursor="pointer"
   >
-    <svg class="w-8 h-8 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="w-6 sm:w-8 h-6 sm:h-8 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
     </svg>
   </button>
@@ -24,20 +24,20 @@
   <!-- Right Arrow Button (Next Photo) -->
   <button 
     id="lightbox-next-btn" 
-    class="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 z-50 w-12 sm:w-14 h-24 rounded-lg bg-carbon/80 hover:bg-white text-white hover:text-black backdrop-blur-md border border-white/15 flex items-center justify-center transition-all group"
+    class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-50 w-10 sm:w-14 h-20 sm:h-24 rounded-lg bg-[#14161F]/80 hover:bg-white text-white hover:text-black backdrop-blur-md border border-white/15 flex items-center justify-center transition-all group shadow-xl active:scale-95"
     aria-label="Foto Siguiente [→]"
     data-cursor="pointer"
   >
-    <svg class="w-8 h-8 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="w-6 sm:w-8 h-6 sm:h-8 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
     </svg>
   </button>
 
   <!-- Main Modal Container Full Width -->
-  <div class="relative w-full h-full max-h-[92vh] flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 px-12 sm:px-16">
+  <div class="relative w-full h-full max-h-[92vh] flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8 px-4 sm:px-14 md:px-16 overflow-y-auto md:overflow-hidden">
     
     <!-- Large Photo Frame -->
-    <div class="relative flex-1 w-full h-full flex items-center justify-center overflow-hidden">
+    <div id="lightbox-touch-area" class="relative flex-1 w-full h-[60vh] md:h-full flex items-center justify-center overflow-hidden">
       <img 
         id="lightbox-img" 
         src="" 
@@ -47,24 +47,24 @@
     </div>
 
     <!-- Curatorial & Technical Sidebar Full Width Info -->
-    <div class="w-full md:w-80 flex-shrink-0 font-mono text-xs text-silver space-y-5 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-8 bg-carbon/60 p-5 md:bg-transparent rounded-xl">
+    <div class="w-full md:w-80 flex-shrink-0 font-mono text-xs text-silver space-y-3 sm:space-y-4 border-t md:border-t-0 md:border-l border-white/10 pt-3 md:pt-0 md:pl-8 bg-[#14161F]/70 p-4 md:bg-transparent rounded-xl">
       <div>
-        <div class="flex items-center justify-between font-mono text-[10px] text-graphite uppercase tracking-widest mb-1">
+        <div class="flex items-center justify-between font-mono text-[9px] sm:text-[10px] text-graphite uppercase tracking-widest mb-1">
           <span>// FICHA TÉCNICA</span>
           <span id="lightbox-counter" class="text-white font-bold">FOTO 01 / 01</span>
         </div>
-        <h3 id="lightbox-title" class="font-condensed text-3xl font-bold uppercase text-white leading-tight">
+        <h3 id="lightbox-title" class="font-condensed text-2xl sm:text-3xl font-bold uppercase text-white leading-tight">
           -
         </h3>
-        <p id="lightbox-copy" class="font-body text-xs text-silver/90 mt-1">
+        <p id="lightbox-copy" class="font-body text-[11px] sm:text-xs text-silver/90 mt-1">
           -
         </p>
       </div>
 
-      <div class="space-y-2.5 border-t border-white/10 pt-4 text-xs">
+      <div class="space-y-1.5 sm:space-y-2 border-t border-white/10 pt-3 text-[11px] sm:text-xs">
         <div class="flex justify-between">
           <span class="text-graphite">ÁLBUM:</span>
-          <span id="lightbox-album" class="text-white font-bold">-</span>
+          <span id="lightbox-album" class="text-white font-bold truncate max-w-[140px]">-</span>
         </div>
         <div class="flex justify-between">
           <span class="text-graphite">OBTURACIÓN:</span>
@@ -78,14 +78,10 @@
           <span class="text-graphite">SENSIBILIDAD:</span>
           <span id="lightbox-iso" class="text-white font-bold">-</span>
         </div>
-        <div class="flex justify-between">
-          <span class="text-graphite">DIMENSIONES:</span>
-          <span id="lightbox-dim" class="text-white font-bold">-</span>
-        </div>
       </div>
 
-      <div class="pt-3 border-t border-white/10 text-[10px] text-graphite flex items-center justify-between">
-        <span>TECLAS ← / → PARA NAVEGAR</span>
+      <div class="pt-2 border-t border-white/10 text-[9px] sm:text-[10px] text-graphite flex items-center justify-between">
+        <span>DESLIZA O TECLAS ← / →</span>
         <span>ESC: SALIR</span>
       </div>
     </div>
@@ -99,6 +95,7 @@
   const closeBtn = document.getElementById('close-lightbox-btn');
   const prevBtn = document.getElementById('lightbox-prev-btn');
   const nextBtn = document.getElementById('lightbox-next-btn');
+  const touchArea = document.getElementById('lightbox-touch-area');
 
   const imgElem = document.getElementById('lightbox-img') as HTMLImageElement;
   const counterElem = document.getElementById('lightbox-counter');
@@ -108,7 +105,6 @@
   const shutterElem = document.getElementById('lightbox-shutter');
   const apertureElem = document.getElementById('lightbox-aperture');
   const isoElem = document.getElementById('lightbox-iso');
-  const dimElem = document.getElementById('lightbox-dim');
 
   let currentPhotoList: any[] = [];
   let currentIndex = 0;
@@ -134,7 +130,6 @@
     if (shutterElem) shutterElem.textContent = data.shutter || '1/250s';
     if (apertureElem) apertureElem.textContent = data.aperture || 'f/2.8';
     if (isoElem) isoElem.textContent = data.iso || 'ISO 100';
-    if (dimElem) dimElem.textContent = data.dim || '3840 × 2160';
   };
 
   const showNextPhoto = () => {
@@ -152,7 +147,6 @@
   const openModal = (targetUrl: string) => {
     if (!modal) return;
 
-    // Collect all lightbox photo triggers currently on the page
     const triggers = Array.from(document.querySelectorAll('[data-lightbox-photo]'));
     currentPhotoList = triggers.map((el) => ({
       url: el.getAttribute('data-url') || (el as HTMLImageElement).src || '',
@@ -191,6 +185,33 @@
       if (e.target === modal) closeModal();
     });
   }
+
+  // Touch Swipe for Mobile Lightbox
+  let touchStartX = 0;
+  let touchDistX = 0;
+
+  modal?.addEventListener('touchstart', (e: TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchStartX = e.touches[0].clientX;
+      touchDistX = 0;
+    }
+  }, { passive: true });
+
+  modal?.addEventListener('touchmove', (e: TouchEvent) => {
+    if (e.touches.length === 1) {
+      touchDistX = e.touches[0].clientX - touchStartX;
+    }
+  }, { passive: true });
+
+  modal?.addEventListener('touchend', () => {
+    if (Math.abs(touchDistX) > 45) {
+      if (touchDistX < 0) {
+        showNextPhoto();
+      } else {
+        showPrevPhoto();
+      }
+    }
+  });
 
   // Keyboard navigation for Modal
   window.addEventListener('keydown', (e) => {

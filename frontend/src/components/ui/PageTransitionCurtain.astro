@@ -1,0 +1,131 @@
+---
+// Split-Curtain Page Transition: Two panels opening from center to sides and closing to center
+---
+
+<div id="curtain-transition-container" class="fixed inset-0 z-[999999] pointer-events-none select-none flex">
+  
+  <!-- Left Curtain Panel -->
+  <div 
+    id="curtain-left" 
+    class="w-1/2 h-full bg-[#07080B] border-r border-white/20 transform-gpu transition-transform duration-500 ease-out origin-left flex items-center justify-end pr-3"
+  >
+    <div class="w-1 h-16 rounded-full bg-white/20"></div>
+  </div>
+
+  <!-- Right Curtain Panel -->
+  <div 
+    id="curtain-right" 
+    class="w-1/2 h-full bg-[#07080B] border-l border-white/20 transform-gpu transition-transform duration-500 ease-out origin-right flex items-center justify-start pl-3"
+  >
+    <div class="w-1 h-16 rounded-full bg-white/20"></div>
+  </div>
+
+  <!-- Center Monogram Watermark during transition -->
+  <div 
+    id="curtain-center-badge" 
+    class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-0 transition-opacity duration-300 flex flex-col items-center"
+  >
+    <span class="font-condensed text-2xl sm:text-3xl font-bold tracking-[0.25em] text-white uppercase">
+      MOMMENTUM
+    </span>
+    <span class="font-mono text-[9px] text-graphite tracking-widest uppercase mt-1">
+      FOTOGRAFÍAS
+    </span>
+  </div>
+
+</div>
+
+<script>
+  import gsap from 'gsap';
+
+  const container = document.getElementById('curtain-transition-container');
+  const curtainLeft = document.getElementById('curtain-left');
+  const curtainRight = document.getElementById('curtain-right');
+  const centerBadge = document.getElementById('curtain-center-badge');
+
+  // Open curtains on page entry
+  const openCurtains = () => {
+    if (!container || !curtainLeft || !curtainRight) return;
+    
+    // Set initial state closed
+    gsap.set(curtainLeft, { xPercent: 0 });
+    gsap.set(curtainRight, { xPercent: 0 });
+    if (centerBadge) gsap.set(centerBadge, { opacity: 1, scale: 1 });
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        container.style.pointerEvents = 'none';
+      }
+    });
+
+    if (centerBadge) {
+      tl.to(centerBadge, { opacity: 0, scale: 0.9, duration: 0.25, ease: 'power2.in' }, 0.05);
+    }
+
+    tl.to(curtainLeft, {
+      xPercent: -100,
+      duration: 0.5,
+      ease: 'power3.inOut'
+    }, 0.15)
+    .to(curtainRight, {
+      xPercent: 100,
+      duration: 0.5,
+      ease: 'power3.inOut'
+    }, 0.15);
+  };
+
+  // Close curtains on internal page navigation
+  const closeCurtainsAndNavigate = (href: string) => {
+    if (!container || !curtainLeft || !curtainRight) {
+      window.location.href = href;
+      return;
+    }
+
+    container.style.pointerEvents = 'auto';
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        window.location.href = href;
+      }
+    });
+
+    tl.to(curtainLeft, {
+      xPercent: 0,
+      duration: 0.4,
+      ease: 'power3.inOut'
+    }, 0)
+    .to(curtainRight, {
+      xPercent: 0,
+      duration: 0.4,
+      ease: 'power3.inOut'
+    }, 0);
+
+    if (centerBadge) {
+      tl.fromTo(centerBadge, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.25, ease: 'power2.out' }, 0.2);
+    }
+  };
+
+  // Execute curtain opening on page load
+  openCurtains();
+
+  // Listen to navigation clicks
+  document.addEventListener('click', (e) => {
+    const target = (e.target as HTMLElement).closest('a');
+    if (!target) return;
+
+    const href = target.getAttribute('href');
+    if (!href) return;
+
+    // Only intercept internal relative page transitions
+    if (
+      href.startsWith('/') && 
+      !href.startsWith('#') && 
+      !href.includes('replay=') && 
+      !target.getAttribute('target') &&
+      href !== window.location.pathname
+    ) {
+      e.preventDefault();
+      closeCurtainsAndNavigate(href);
+    }
+  });
+</script>

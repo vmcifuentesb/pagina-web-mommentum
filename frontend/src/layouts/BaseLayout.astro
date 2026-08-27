@@ -2,7 +2,7 @@
 import CustomCursor from '../components/ui/CustomCursor.astro';
 import PhotoModal from '../components/gallery/PhotoModal.astro';
 import TunnelPreloader from '../components/intro/TunnelPreloader.astro';
-import PageTransitionShutter from '../components/ui/PageTransitionShutter.astro';
+import PageTransitionCurtain from '../components/ui/PageTransitionCurtain.astro';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
 import '../styles/global.css';
@@ -24,7 +24,7 @@ const {
 <html lang="es" class="scroll-smooth bg-obsidian text-pure selection:bg-pure selection:text-obsidian">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
@@ -45,8 +45,8 @@ const {
     <!-- Cinematic Preloader (Only shown on Home or replay) -->
     {isHome && <TunnelPreloader />}
 
-    <!-- Global Shutter Page Transition Effect -->
-    <PageTransitionShutter />
+    <!-- Global Split-Curtain Page Transition Effect -->
+    <PageTransitionCurtain />
 
     <!-- Optical Lens Crosshair Custom Cursor -->
     <CustomCursor />

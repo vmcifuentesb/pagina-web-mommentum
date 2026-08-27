@@ -9,11 +9,11 @@ const uniquePhotos = ALL_PHOTOS.filter(photo => {
   return true;
 });
 
-// 2. Arrange unique photos in wide concentric orbits that surround the central name with a clean halo
+// 2. Arrange unique photos in wide concentric orbits
 const rings = [
-  { count: 6, radius: 400 },
-  { count: 10, radius: 660 },
-  { count: 14, radius: 920 },
+  { count: 6, radius: 360 },
+  { count: 10, radius: 620 },
+  { count: 14, radius: 880 },
 ];
 
 let photoCounter = 0;
@@ -34,36 +34,46 @@ rings.forEach(ring => {
 });
 ---
 
-<div id="mural-viewport" class="relative w-full h-screen bg-[#07080A] overflow-hidden select-none cursor-grab active:cursor-grabbing" data-cursor="drag">
+<div id="mural-viewport" class="relative w-full h-[100dvh] bg-[#07080B] overflow-hidden select-none cursor-grab active:cursor-grabbing touch-none" data-cursor="drag">
   
   <!-- Canvas HUD Overlay Top Left -->
-  <div class="fixed top-24 left-6 md:left-12 z-30 pointer-events-none font-mono text-xs text-graphite max-w-sm">
-    <a href="/" class="text-graphite hover:text-white mb-1 block pointer-events-auto" data-cursor="pointer">← VOLVER AL INICIO</a>
-    <span class="text-white font-bold block uppercase tracking-[0.25em]">// MURAL DE FOTOGRAMAS</span>
-    <p class="mt-1 text-silver/70">RUEDA DEL RATÓN PARA ZOOM • ARRASTRA PARA DESPLAZAR</p>
+  <div class="fixed top-20 sm:top-24 left-4 sm:left-8 md:left-12 z-30 pointer-events-none font-mono text-xs text-graphite max-w-sm">
+    <a href="/" class="text-graphite hover:text-white mb-0.5 block pointer-events-auto text-[11px]" data-cursor="pointer">← INICIO</a>
+    <span class="text-white font-bold block uppercase tracking-[0.2em] text-sm sm:text-base">// MURAL DE FOTOGRAMAS</span>
+    <p class="mt-0.5 text-silver/70 text-[10px] hidden sm:block">ARRASTRA PARA DESPLAZAR • TOCA UNA FOTO PARA AMPLIAR</p>
   </div>
 
-  <!-- Color Mode Toggle Switch (Top Right) -->
-  <div class="fixed top-24 right-6 md:right-12 z-30 flex items-center gap-3 font-mono text-xs">
-    <div class="flex items-center gap-1 bg-carbon p-1 rounded border border-white/15">
-      <button id="btn-bw-mode" class="px-3 py-1.5 rounded bg-pure text-obsidian font-bold transition-all text-[11px]" data-cursor="pointer">
-        BLANCO Y NEGRO
+  <!-- Mode & Zoom Controls (Top Right) -->
+  <div class="fixed top-20 sm:top-24 right-4 sm:right-8 md:right-12 z-30 flex items-center gap-2 font-mono text-xs pointer-events-auto">
+    <div class="flex items-center gap-1 bg-[#14161F] p-1 rounded-lg border border-white/15">
+      <button id="btn-bw-mode" class="px-2.5 py-1 rounded bg-white text-[#07080B] font-bold transition-all text-[10px]" data-cursor="pointer">
+        B/N
       </button>
-      <button id="btn-color-mode" class="px-3 py-1.5 rounded text-graphite hover:text-pure transition-all text-[11px]" data-cursor="pointer">
-        COLOR REAL
+      <button id="btn-color-mode" class="px-2.5 py-1 rounded text-graphite hover:text-white transition-all text-[10px]" data-cursor="pointer">
+        COLOR
       </button>
     </div>
-    <span id="mural-zoom-level" class="bg-carbon px-2.5 py-1.5 rounded text-silver font-bold border border-white/10 text-[11px]">
-      100%
-    </span>
+    
+    <!-- Floating Touch Zoom Buttons for Mobile & Desktop -->
+    <div class="flex items-center gap-1 bg-[#14161F] p-1 rounded-lg border border-white/15">
+      <button id="btn-zoom-out" class="w-7 h-7 rounded bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center text-sm active:scale-95" title="Alejar">
+        −
+      </button>
+      <span id="mural-zoom-level" class="px-1.5 text-silver font-bold text-[10px]">
+        100%
+      </span>
+      <button id="btn-zoom-in" class="w-7 h-7 rounded bg-white/10 hover:bg-white/20 text-white font-bold flex items-center justify-center text-sm active:scale-95" title="Acercar">
+        +
+      </button>
+    </div>
   </div>
 
   <!-- Infinite Draggable & Zoomable Space Canvas -->
-  <div id="mural-universe" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[3000px] h-[3000px] transform-gpu origin-center transition-transform duration-75">
+  <div id="mural-universe" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[2800px] h-[2800px] transform-gpu origin-center transition-transform duration-75">
     
-    <!-- Central Brand Name with Wide Clear Halo -->
-    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center pointer-events-none z-10 w-72 h-72 rounded-full bg-obsidian/90 backdrop-blur-md border border-white/10 shadow-[0_0_80px_rgba(0,0,0,0.9)]">
-      <span class="font-condensed text-4xl sm:text-5xl font-bold uppercase tracking-[0.25em] text-white">
+    <!-- Central Brand Badge -->
+    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center pointer-events-none z-10 w-60 h-60 sm:w-72 sm:h-72 rounded-full bg-[#07080B]/90 backdrop-blur-md border border-white/15 shadow-[0_0_80px_rgba(0,0,0,0.9)]">
+      <span class="font-condensed text-3xl sm:text-4xl font-bold uppercase tracking-[0.25em] text-white">
         MOMMENTUM
       </span>
       <span class="font-mono text-[9px] text-graphite uppercase tracking-[0.25em] mt-1">
@@ -71,10 +81,10 @@ rings.forEach(ring => {
       </span>
     </div>
 
-    <!-- Orbiting Unique Photos (Surrounding the center without covering it) -->
+    <!-- Orbiting Unique Photos -->
     {muralPhotos.map((photo) => (
       <div 
-        class="mural-photo-node absolute cursor-pointer transition-transform duration-300 hover:scale-110 z-20 group"
+        class="mural-photo-node absolute cursor-pointer transition-transform duration-300 hover:scale-110 active:scale-95 z-20 group"
         style={`left: calc(50% + ${photo.x}px); top: calc(50% + ${photo.y}px); transform: translate(-50%, -50%);`}
         data-lightbox-photo
         data-url={photo.url}
@@ -87,15 +97,15 @@ rings.forEach(ring => {
         data-dim={photo.dimensions}
         data-cursor="view"
       >
-        <div class="w-48 sm:w-56 aspect-[4/3] rounded overflow-hidden p-2 bg-carbon border border-white/15 group-hover:border-white shadow-2xl transition-all">
+        <div class="w-36 sm:w-48 aspect-[4/3] rounded-lg overflow-hidden p-1.5 bg-[#14161F] border border-white/15 group-hover:border-white shadow-2xl transition-all">
           <img 
             src={photo.url} 
             alt={photo.title} 
-            class="mural-img w-full h-full object-cover filter grayscale contrast-125 transition-all duration-500" 
+            class="mural-img w-full h-full object-cover filter grayscale contrast-125 transition-all duration-500 rounded" 
             loading="lazy"
           />
         </div>
-        <div class="mt-1 text-center font-mono text-[9px] text-silver/70 group-hover:text-white truncate max-w-[220px]">
+        <div class="mt-1 text-center font-mono text-[8px] sm:text-[9px] text-silver/70 group-hover:text-white truncate max-w-[150px] sm:max-w-[200px]">
           {photo.title}
         </div>
       </div>
@@ -111,72 +121,99 @@ rings.forEach(ring => {
   const zoomLevelElem = document.getElementById('mural-zoom-level');
   const btnBw = document.getElementById('btn-bw-mode');
   const btnColor = document.getElementById('btn-color-mode');
-  const muralImages = document.querySelectorAll('.mural-img');
+  const btnZoomIn = document.getElementById('btn-zoom-in');
+  const btnZoomOut = document.getElementById('btn-zoom-out');
+  const muralImgs = document.querySelectorAll('.mural-img');
 
-  if (viewport && universe) {
-    let isDragging = false;
-    let startX = 0, startY = 0;
-    let posX = 0, posY = 0;
-    let scale = 1.0;
+  let currentScale = 1.0;
+  let posX = 0;
+  let posY = 0;
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
 
-    const minScale = 0.45;
-    const maxScale = 2.0;
-
-    const updateTransform = () => {
-      universe.style.transform = `translate3d(calc(-50% + ${posX}px), calc(-50% + ${posY}px), 0) scale(${scale})`;
-      if (zoomLevelElem) {
-        zoomLevelElem.textContent = `${Math.round(scale * 100)}%`;
-      }
-    };
-
-    // Pan with Mouse Drag
-    viewport.addEventListener('mousedown', (e) => {
-      if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('a')) return;
-      isDragging = true;
-      startX = e.clientX - posX;
-      startY = e.clientY - posY;
-    });
-
-    window.addEventListener('mouseup', () => { isDragging = false; });
-
-    window.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      posX = e.clientX - startX;
-      posY = e.clientY - startY;
-      updateTransform();
-    });
-
-    // Zoom with Mouse Wheel
-    viewport.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
-      scale = Math.max(minScale, Math.min(maxScale, scale * zoomFactor));
-      updateTransform();
-    }, { passive: false });
-
-    // Color Mode Switcher
-    if (btnBw && btnColor) {
-      btnBw.addEventListener('click', () => {
-        btnBw.classList.add('bg-pure', 'text-obsidian', 'font-bold');
-        btnBw.classList.remove('text-graphite');
-        btnColor.classList.remove('bg-pure', 'text-obsidian', 'font-bold');
-        btnColor.classList.add('text-graphite');
-
-        muralImages.forEach((img) => {
-          img.classList.add('grayscale');
-        });
-      });
-
-      btnColor.addEventListener('click', () => {
-        btnColor.classList.add('bg-pure', 'text-obsidian', 'font-bold');
-        btnColor.classList.remove('text-graphite');
-        btnBw.classList.remove('bg-pure', 'text-obsidian', 'font-bold');
-        btnBw.classList.add('text-graphite');
-
-        muralImages.forEach((img) => {
-          img.classList.remove('grayscale');
-        });
-      });
+  const updateTransform = () => {
+    if (!universe) return;
+    universe.style.transform = `translate(calc(-50% + ${posX}px), calc(-50% + ${posY}px)) scale(${currentScale})`;
+    if (zoomLevelElem) {
+      zoomLevelElem.textContent = `${Math.round(currentScale * 100)}%`;
     }
-  }
+  };
+
+  // Touch Panning
+  viewport?.addEventListener('touchstart', (e: TouchEvent) => {
+    if (e.touches.length === 1) {
+      isDragging = true;
+      startX = e.touches[0].clientX - posX;
+      startY = e.touches[0].clientY - posY;
+    }
+  }, { passive: true });
+
+  window.addEventListener('touchmove', (e: TouchEvent) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    posX = e.touches[0].clientX - startX;
+    posY = e.touches[0].clientY - startY;
+    updateTransform();
+  }, { passive: true });
+
+  window.addEventListener('touchend', () => {
+    isDragging = false;
+  });
+
+  // Mouse Drag Panning
+  viewport?.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    isDragging = true;
+    startX = e.clientX - posX;
+    startY = e.clientY - posY;
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    posX = e.clientX - startX;
+    posY = e.clientY - startY;
+    updateTransform();
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+
+  // Mouse Wheel Zoom
+  viewport?.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+    currentScale = Math.min(Math.max(0.4, currentScale * zoomFactor), 2.2);
+    updateTransform();
+  }, { passive: false });
+
+  // Touch Zoom Buttons
+  btnZoomIn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    currentScale = Math.min(2.2, currentScale * 1.2);
+    updateTransform();
+  });
+
+  btnZoomOut?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    currentScale = Math.max(0.4, currentScale * 0.8);
+    updateTransform();
+  });
+
+  // B/W vs Color Mode
+  btnBw?.addEventListener('click', () => {
+    btnBw.classList.add('bg-white', 'text-[#07080B]', 'font-bold');
+    btnBw.classList.remove('text-graphite');
+    btnColor?.classList.remove('bg-white', 'text-[#07080B]', 'font-bold');
+    btnColor?.classList.add('text-graphite');
+    muralImgs.forEach(img => img.classList.add('grayscale'));
+  });
+
+  btnColor?.addEventListener('click', () => {
+    btnColor.classList.add('bg-white', 'text-[#07080B]', 'font-bold');
+    btnColor.classList.remove('text-graphite');
+    btnBw?.classList.remove('bg-white', 'text-[#07080B]', 'font-bold');
+    btnBw?.classList.add('text-graphite');
+    muralImgs.forEach(img => img.classList.remove('grayscale'));
+  });
 </script>

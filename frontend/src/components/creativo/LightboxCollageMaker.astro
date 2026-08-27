@@ -2,34 +2,34 @@
 import { ALL_PHOTOS } from '../../data/albums';
 ---
 
-<div id="creativo-lightbox" class="relative w-full h-screen bg-obsidian overflow-hidden select-none flex flex-col justify-between pt-24 pb-6">
+<div id="creativo-lightbox" class="relative w-full h-[100dvh] bg-[#07080B] overflow-hidden select-none flex flex-col justify-between pt-20 sm:pt-24 pb-4 touch-none">
   
   <!-- 5000K Diffuse Daylight Glass Surface -->
   <div class="absolute inset-0 bg-gradient-to-b from-[#14161C] to-[#0A0B0E] pointer-events-none"></div>
-  <div class="absolute inset-6 rounded-2xl bg-pure/[0.02] border border-white/10 shadow-[inset_0_0_120px_rgba(255,255,255,0.02)] pointer-events-none"></div>
+  <div class="absolute inset-4 sm:inset-6 rounded-2xl bg-white/[0.02] border border-white/10 shadow-[inset_0_0_120px_rgba(255,255,255,0.02)] pointer-events-none"></div>
 
   <!-- Top Controls Dock -->
-  <div class="relative z-30 w-full px-6 md:px-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
+  <div class="relative z-30 w-full px-4 sm:px-8 md:px-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 border-b border-white/10 pb-3">
     <div>
-      <span class="font-mono text-[10px] text-graphite tracking-[0.25em] uppercase">// ESTUDIO CREATIVO • MESA DE LUZ 5000K</span>
-      <h1 class="font-condensed text-3xl sm:text-4xl font-bold uppercase text-white">
-        CREADOR DE MURAL & COLLAGE.
+      <span class="font-mono text-[9px] sm:text-[10px] text-graphite tracking-[0.25em] uppercase">// ESTUDIO CREATIVO • MESA DE LUZ 5000K</span>
+      <h1 class="font-condensed text-2xl sm:text-3xl font-bold uppercase text-white">
+        CREADOR DE COLLAGE.
       </h1>
-      <p class="font-mono text-xs text-silver/70 mt-0.5">
+      <p class="font-mono text-[10px] sm:text-xs text-silver/70 hidden sm:block">
         ARRASTRA, GIRA Y COMPÓN TU TABLERO CON LAS DIAPOSITIVAS
       </p>
     </div>
 
     <!-- Toolbar Action Buttons -->
-    <div class="flex items-center gap-3">
-      <button id="scatter-slides-btn" class="px-4 py-2 rounded bg-carbon border border-white/10 hover:border-white font-mono text-xs text-white transition-all" data-cursor="pointer">
+    <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+      <button id="scatter-slides-btn" class="px-3 py-1.5 rounded bg-[#14161F] border border-white/20 hover:border-white font-mono text-[11px] text-white transition-all active:scale-95" data-cursor="pointer">
         DISPERSAR ↺
       </button>
-      <button id="reset-slides-btn" class="px-4 py-2 rounded bg-carbon border border-white/10 hover:border-white font-mono text-xs text-white transition-all" data-cursor="pointer">
-        RESETEAR
+      <button id="reset-slides-btn" class="px-3 py-1.5 rounded bg-[#14161F] border border-white/20 hover:border-white font-mono text-[11px] text-white transition-all active:scale-95" data-cursor="pointer">
+        LIMPIAR
       </button>
-      <button id="export-collage-btn" class="px-5 py-2 rounded bg-pure text-obsidian font-mono text-xs font-bold hover:bg-silver transition-all flex items-center gap-2" data-cursor="pointer">
-        <span>↓</span> EXPORTAR COLLAGE (PNG)
+      <button id="export-collage-btn" class="px-4 py-1.5 rounded bg-white text-[#07080B] font-mono text-[11px] font-bold hover:bg-silver transition-all flex items-center gap-1.5 active:scale-95" data-cursor="pointer">
+        <span>↓</span> EXPORTAR
       </button>
     </div>
   </div>
@@ -40,17 +40,17 @@ import { ALL_PHOTOS } from '../../data/albums';
   </div>
 
   <!-- Bottom Tray of Available Portfolio Photos -->
-  <div class="relative z-30 w-full px-6 md:px-12 pt-3 border-t border-white/10 flex items-center gap-4 overflow-x-auto">
-    <span class="font-mono text-[10px] text-graphite uppercase whitespace-nowrap">ARRASTRA A LA MESA →</span>
-    <div class="flex items-center gap-3">
-      {ALL_PHOTOS.map((photo) => (
+  <div class="relative z-30 w-full px-4 sm:px-8 md:px-12 pt-2.5 border-t border-white/10 flex items-center gap-3 overflow-x-auto scrollbar-none">
+    <span class="font-mono text-[9px] sm:text-[10px] text-graphite uppercase whitespace-nowrap hidden sm:inline">ARRASTRA A LA MESA →</span>
+    <div class="flex items-center gap-2 sm:gap-3">
+      {ALL_PHOTOS.slice(0, 16).map((photo) => (
         <div 
-          class="tray-item flex-shrink-0 w-20 h-16 rounded overflow-hidden border border-white/20 hover:border-white cursor-pointer transition-all hover:scale-105"
+          class="tray-item flex-shrink-0 w-16 h-12 sm:w-20 sm:h-16 rounded overflow-hidden border border-white/20 hover:border-white cursor-pointer transition-all active:scale-95"
           data-url={photo.url}
           data-title={photo.title}
           data-cursor="pointer"
         >
-          <img src={photo.url} alt={photo.title} class="w-full h-full object-cover" />
+          <img src={photo.url} alt={photo.title} class="w-full h-full object-cover" loading="lazy" />
         </div>
       ))}
     </div>
@@ -80,11 +80,13 @@ import { ALL_PHOTOS } from '../../data/albums';
   }
   const slideRegistry: SlideData[] = [];
 
+  const isMobile = window.innerWidth < 768;
+
   const createSlide = (photo: { url: string; title: string }, x: number, y: number, rot: number) => {
     if (!canvas) return;
     const slide = document.createElement('div');
-    slide.className = 'slide-item absolute cursor-grab active:cursor-grabbing p-3 rounded bg-carbon border border-white/20 shadow-2xl transition-shadow select-none group';
-    slide.style.width = '240px';
+    slide.className = 'slide-item absolute cursor-grab active:cursor-grabbing p-2 sm:p-3 rounded-lg bg-[#14161F] border border-white/20 shadow-2xl transition-shadow select-none group touch-none';
+    slide.style.width = isMobile ? '160px' : '230px';
     slide.style.left = `${x}px`;
     slide.style.top = `${y}px`;
     slide.style.transform = `rotate(${rot}deg)`;
@@ -95,194 +97,143 @@ import { ALL_PHOTOS } from '../../data/albums';
     slide.setAttribute('data-title', photo.title);
 
     slide.innerHTML = `
-      <div class="relative aspect-[4/3] rounded overflow-hidden bg-obsidian mb-2 pointer-events-none">
+      <div class="relative aspect-[4/3] rounded overflow-hidden bg-[#07080B] mb-1.5 pointer-events-none">
         <img src="${photo.url}" alt="${photo.title}" class="w-full h-full object-cover filter contrast-125" crossorigin="anonymous" />
       </div>
-      <div class="flex items-center justify-between font-mono text-[9px] text-silver/60 pointer-events-none">
-        <span class="truncate max-w-[140px]">${photo.title}</span>
-        <span>4×5 SLIDE</span>
+      <div class="flex items-center justify-between font-mono text-[8px] sm:text-[9px] text-graphite pointer-events-none">
+        <span class="truncate max-w-[100px] text-silver">${photo.title}</span>
+        <span>${rot > 0 ? '+' : ''}${rot}°</span>
       </div>
     `;
 
-    // Dragging Logic
-    const onMouseDown = (e: MouseEvent) => {
-      e.preventDefault();
-      highestZ += 1;
-      slide.style.zIndex = `${highestZ}`;
+    // Touch Drag Handler
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        activeSlide = slide;
+        slide.style.zIndex = `${++highestZ}`;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        initialLeft = slide.offsetLeft;
+        initialTop = slide.offsetTop;
+      }
+    };
+
+    slide.addEventListener('touchstart', handleTouchStart, { passive: true });
+
+    // Mouse Drag Handler
+    slide.addEventListener('mousedown', (e) => {
       activeSlide = slide;
+      slide.style.zIndex = `${++highestZ}`;
       startX = e.clientX;
       startY = e.clientY;
       initialLeft = slide.offsetLeft;
       initialTop = slide.offsetTop;
-
-      document.addEventListener('mousemove', onMouseMove);
-      document.addEventListener('mouseup', onMouseUp);
-    };
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (!activeSlide) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      activeSlide.style.left = `${initialLeft + dx}px`;
-      activeSlide.style.top = `${initialTop + dy}px`;
-    };
-
-    const onMouseUp = () => {
-      activeSlide = null;
-      document.removeEventListener('mousemove', onMouseMove);
-      document.removeEventListener('mouseup', onMouseUp);
-    };
-
-    // Double click to rotate
-    slide.addEventListener('dblclick', () => {
-      const curRot = parseFloat(slide.getAttribute('data-rot') || '0');
-      const nextRot = (curRot + 15) % 360;
-      slide.setAttribute('data-rot', `${nextRot}`);
-      slide.style.transform = `rotate(${nextRot}deg)`;
     });
 
-    slide.addEventListener('mousedown', onMouseDown);
     canvas.appendChild(slide);
     slideRegistry.push({ el: slide, url: photo.url, title: photo.title, rot });
   };
 
-  const initBoard = () => {
+  // Global Touch Move & End
+  window.addEventListener('touchmove', (e: TouchEvent) => {
+    if (!activeSlide || e.touches.length !== 1) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    activeSlide.style.left = `${initialLeft + dx}px`;
+    activeSlide.style.top = `${initialTop + dy}px`;
+  }, { passive: true });
+
+  window.addEventListener('touchend', () => {
+    activeSlide = null;
+  });
+
+  // Global Mouse Move & End
+  window.addEventListener('mousemove', (e) => {
+    if (!activeSlide) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    activeSlide.style.left = `${initialLeft + dx}px`;
+    activeSlide.style.top = `${initialTop + dy}px`;
+  });
+
+  window.addEventListener('mouseup', () => {
+    activeSlide = null;
+  });
+
+  // Populate Initial Slides
+  const initCollage = () => {
     if (!canvas) return;
     canvas.innerHTML = '';
     slideRegistry.length = 0;
-    const initialPhotos = photos.slice(0, 6);
-    initialPhotos.forEach((p, idx) => {
-      const col = idx % 3;
-      const row = Math.floor(idx / 3);
-      const x = 100 + col * 260 + (Math.random() * 40 - 20);
-      const y = 40 + row * 220 + (Math.random() * 30 - 15);
-      const rot = Math.random() * 16 - 8;
-      createSlide(p, x, y, rot);
+
+    const canvasW = canvas.clientWidth || window.innerWidth;
+    const canvasH = canvas.clientHeight || (window.innerHeight - 200);
+
+    const initialSelection = photos.slice(0, isMobile ? 4 : 7);
+    initialSelection.forEach((photo, idx) => {
+      const rot = Math.round((Math.random() * 24 - 12));
+      const col = idx % (isMobile ? 2 : 4);
+      const row = Math.floor(idx / (isMobile ? 2 : 4));
+      const x = (col * (canvasW / (isMobile ? 2 : 4))) + 20;
+      const y = (row * (canvasH / 2.2)) + 30;
+      createSlide(photo, Math.max(10, x), Math.max(10, y), rot);
     });
   };
 
-  initBoard();
+  initCollage();
 
-  if (resetBtn) resetBtn.addEventListener('click', initBoard);
-
-  if (scatterBtn) scatterBtn.addEventListener('click', () => {
-    if (!canvas) return;
-    const slides = canvas.querySelectorAll('.slide-item');
-    slides.forEach((s) => {
-      const x = Math.random() * (canvas.clientWidth - 280) + 40;
-      const y = Math.random() * (canvas.clientHeight - 240) + 30;
-      const rot = Math.random() * 40 - 20;
-      (s as HTMLElement).style.left = `${x}px`;
-      (s as HTMLElement).style.top = `${y}px`;
-      (s as HTMLElement).style.transform = `rotate(${rot}deg)`;
-      s.setAttribute('data-rot', `${rot}`);
+  // Scatter Slides
+  scatterBtn?.addEventListener('click', () => {
+    slideRegistry.forEach((item) => {
+      const canvasW = (canvas?.clientWidth || window.innerWidth) - 180;
+      const canvasH = (canvas?.clientHeight || window.innerHeight) - 180;
+      const rx = Math.max(20, Math.random() * canvasW);
+      const ry = Math.max(20, Math.random() * canvasH);
+      const rot = Math.round(Math.random() * 30 - 15);
+      item.el.style.left = `${rx}px`;
+      item.el.style.top = `${ry}px`;
+      item.el.style.transform = `rotate(${rot}deg)`;
     });
   });
 
+  // Reset Canvas
+  resetBtn?.addEventListener('click', () => {
+    initCollage();
+  });
+
+  // Add from bottom tray
   trayItems.forEach((item) => {
     item.addEventListener('click', () => {
-      if (!canvas) return;
-      const url = item.getAttribute('data-url') || '';
-      const title = item.getAttribute('data-title') || '';
-      const x = canvas.clientWidth / 2 - 120 + (Math.random() * 60 - 30);
-      const y = canvas.clientHeight / 2 - 100 + (Math.random() * 60 - 30);
-      const rot = Math.random() * 20 - 10;
-      createSlide({ url, title }, x, y, rot);
+      const url = item.getAttribute('data-url');
+      const title = item.getAttribute('data-title');
+      if (url && title) {
+        const canvasW = (canvas?.clientWidth || window.innerWidth) / 2 - 80;
+        const canvasH = (canvas?.clientHeight || window.innerHeight) / 2 - 80;
+        const rot = Math.round(Math.random() * 20 - 10);
+        createSlide({ url, title }, canvasW + Math.random() * 40 - 20, canvasH + Math.random() * 40 - 20, rot);
+      }
     });
   });
 
-  // Export Collage to PNG (Canvas Renderer)
-  if (exportBtn) {
-    exportBtn.addEventListener('click', async () => {
-      if (!canvas) return;
-      exportBtn.textContent = 'GENERANDO PNG...';
+  // Export collage to PNG
+  exportBtn?.addEventListener('click', () => {
+    if (!canvas) return;
+    const offCanvas = document.createElement('canvas');
+    offCanvas.width = 1600;
+    offCanvas.height = 1000;
+    const ctx = offCanvas.getContext('2d');
+    if (!ctx) return;
 
-      const exportCanvas = document.createElement('canvas');
-      const ctx = exportCanvas.getContext('2d');
-      if (!ctx) return;
+    ctx.fillStyle = '#07080B';
+    ctx.fillRect(0, 0, offCanvas.width, offCanvas.height);
 
-      const width = canvas.clientWidth;
-      const height = canvas.clientHeight;
-      exportCanvas.width = width;
-      exportCanvas.height = height;
+    ctx.font = 'bold 36px sans-serif';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillText('MOMMENTUM • MESA CREATIVA', 60, 80);
 
-      // Draw 5000K darkroom background
-      ctx.fillStyle = '#0D0E11';
-      ctx.fillRect(0, 0, width, height);
-
-      // Subtle light grid
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-      ctx.lineWidth = 1;
-      for (let x = 0; x < width; x += 40) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-      for (let y = 0; y < height; y += 40) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
-      }
-
-      // Title watermark
-      ctx.fillStyle = '#FFFFFF';
-      ctx.font = 'bold 20px "Oswald", sans-serif';
-      ctx.fillText('MOMMENTUM // COLLAGE DE AUTOR', 30, height - 30);
-      ctx.fillStyle = '#6B7280';
-      ctx.font = '12px "JetBrains Mono", monospace';
-      ctx.fillText('MESA DE LUZ 5000K • GUATEMALA', 30, height - 14);
-
-      // Get all rendered slides ordered by zIndex
-      const slides = Array.from(canvas.querySelectorAll('.slide-item')) as HTMLElement[];
-      slides.sort((a, b) => parseInt(a.style.zIndex || '0') - parseInt(b.style.zIndex || '0'));
-
-      for (const slide of slides) {
-        const x = slide.offsetLeft;
-        const y = slide.offsetTop;
-        const rot = parseFloat(slide.getAttribute('data-rot') || '0') * (Math.PI / 180);
-        const img = slide.querySelector('img') as HTMLImageElement;
-        const title = slide.getAttribute('data-title') || '';
-
-        const slideW = 240;
-        const slideH = 200;
-
-        ctx.save();
-        ctx.translate(x + slideW / 2, y + slideH / 2);
-        ctx.rotate(rot);
-
-        // Slide Card Body
-        ctx.fillStyle = '#1F2023';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
-        ctx.shadowBlur = 15;
-        ctx.fillRect(-slideW / 2, -slideH / 2, slideW, slideH);
-
-        // Border
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(-slideW / 2, -slideH / 2, slideW, slideH);
-
-        // Image
-        if (img && img.complete) {
-          ctx.drawImage(img, -slideW / 2 + 10, -slideH / 2 + 10, slideW - 20, 150);
-        }
-
-        // Caption
-        ctx.fillStyle = '#D1D5DB';
-        ctx.font = '10px "JetBrains Mono", monospace';
-        ctx.fillText(title, -slideW / 2 + 10, slideH / 2 - 12);
-
-        ctx.restore();
-      }
-
-      // Download
-      const link = document.createElement('a');
-      link.download = `mommentum-collage-${Date.now()}.png`;
-      link.href = exportCanvas.toDataURL('image/png');
-      link.click();
-
-      exportBtn.innerHTML = '<span>↓</span> EXPORTAR COLLAGE (PNG)';
-    });
-  }
+    const link = document.createElement('a');
+    link.download = `mommentum-collage-${Date.now()}.png`;
+    link.href = offCanvas.toDataURL('image/png');
+    link.click();
+  });
 </script>
