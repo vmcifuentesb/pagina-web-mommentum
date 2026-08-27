@@ -61,16 +61,20 @@ import { ALL_PHOTOS } from '../../data/albums';
 <script>
   import { ALL_PHOTOS } from '../../data/albums';
 
-  const photos = ALL_PHOTOS;
-  const canvas = document.getElementById('lightbox-canvas');
-  const scatterBtn = document.getElementById('scatter-slides-btn');
-  const resetBtn = document.getElementById('reset-slides-btn');
-  const exportBtn = document.getElementById('export-collage-btn');
-  const trayItems = document.querySelectorAll('.tray-item');
+  function initCreativeStudio() {
+    const photos = ALL_PHOTOS;
+    const canvas = document.getElementById('lightbox-canvas');
+    if (!canvas) return;
+    canvas.innerHTML = ''; // Clear previous slides
 
-  let activeSlide: HTMLElement | null = null;
-  let highestZ = 100;
-  let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
+    const scatterBtn = document.getElementById('scatter-slides-btn');
+    const resetBtn = document.getElementById('reset-slides-btn');
+    const exportBtn = document.getElementById('export-collage-btn');
+    const trayItems = document.querySelectorAll('.tray-item');
+
+    let activeSlide: HTMLElement | null = null;
+    let highestZ = 100;
+    let startX = 0, startY = 0, initialLeft = 0, initialTop = 0;
 
   interface SlideData {
     el: HTMLElement;
@@ -236,4 +240,8 @@ import { ALL_PHOTOS } from '../../data/albums';
     link.href = offCanvas.toDataURL('image/png');
     link.click();
   });
+}
+
+document.addEventListener('astro:page-load', initCreativeStudio);
+initCreativeStudio();
 </script>

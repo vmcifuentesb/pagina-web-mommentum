@@ -143,21 +143,22 @@ const photos = album.photos;
 </div>
 
 <script define:vars={{ photos, albumTitle: album.title }}>
-  let activeIndex = 0;
-  const stageImg = document.getElementById('stage-active-img');
-  const stageCounter = document.getElementById('stage-counter');
-  const stageTitle = document.getElementById('stage-title');
-  const stageSpecs = document.getElementById('stage-specs');
-  const btnPrev = document.getElementById('btn-stage-prev');
-  const btnNext = document.getElementById('btn-stage-next');
-  const btnExpand = document.getElementById('stage-expand-btn');
-  const thumbBtns = document.querySelectorAll('.stage-thumb-btn');
+  function initMasterGallery() {
+    let activeIndex = 0;
+    const stageImg = document.getElementById('stage-active-img');
+    const stageCounter = document.getElementById('stage-counter');
+    const stageTitle = document.getElementById('stage-title');
+    const stageSpecs = document.getElementById('stage-specs');
+    const btnPrev = document.getElementById('btn-stage-prev');
+    const btnNext = document.getElementById('btn-stage-next');
+    const btnExpand = document.getElementById('stage-expand-btn');
+    const thumbBtns = document.querySelectorAll('.stage-thumb-btn');
 
-  const viewSliderBtn = document.getElementById('view-slider-btn');
-  const viewGridBtn = document.getElementById('view-grid-btn');
-  const stageContainer = document.getElementById('gallery-stage-container');
-  const stripContainer = document.getElementById('gallery-strip-container');
-  const gridContainer = document.getElementById('gallery-grid-container');
+    const viewSliderBtn = document.getElementById('view-slider-btn');
+    const viewGridBtn = document.getElementById('view-grid-btn');
+    const stageContainer = document.getElementById('gallery-stage-container');
+    const stripContainer = document.getElementById('gallery-strip-container');
+    const gridContainer = document.getElementById('gallery-grid-container');
 
   const updateStage = (index) => {
     if (index < 0) index = photos.length - 1;
@@ -256,4 +257,8 @@ const photos = album.photos;
       gridContainer.classList.remove('hidden');
     });
   }
+}
+
+document.addEventListener('astro:page-load', initMasterGallery);
+initMasterGallery();
 </script>

@@ -97,35 +97,38 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
   import gsap from 'gsap';
   import { ALBUMS } from '../../data/albums';
 
-  const masterpieces = ALBUMS.map((album, idx) => ({
-    index: idx,
-    id: album.id,
-    title: album.title,
-    albumSlug: album.slug,
-    category: album.category,
-    photoUrl: album.bestPhoto.url,
-    description: album.description,
-    totalPhotos: album.photos.length,
-    shutter: album.bestPhoto.shutter,
-    aperture: album.bestPhoto.aperture,
-    iso: album.bestPhoto.iso,
-    dimensions: album.bestPhoto.dimensions,
-    anitaCopy: album.bestPhoto.anitaCopy
-  }));
+  function setupMuseum() {
+    const container = document.getElementById('museum-3d-canvas');
+    if (!container) return;
+    container.innerHTML = ''; // Clean stale canvases
 
-  const container = document.getElementById('museum-3d-canvas');
-  const albumElem = document.getElementById('active-art-album');
-  const counterElem = document.getElementById('active-art-counter');
-  const titleElem = document.getElementById('active-art-title');
-  const descElem = document.getElementById('active-art-desc');
-  const linkElem = document.getElementById('active-art-link') as HTMLAnchorElement;
-  const perspLabel = document.getElementById('persp-label');
-  const btnTogglePersp = document.getElementById('btn-toggle-persp');
-  const prevBtn = document.getElementById('btn-museum-prev');
-  const nextBtn = document.getElementById('btn-museum-next');
-  const masterpieceTabs = document.querySelectorAll('.museum-masterpiece-tab');
+    const masterpieces = ALBUMS.map((album, idx) => ({
+      index: idx,
+      id: album.id,
+      title: album.title,
+      albumSlug: album.slug,
+      category: album.category,
+      photoUrl: album.bestPhoto.url,
+      description: album.description,
+      totalPhotos: album.photos.length,
+      shutter: album.bestPhoto.shutter,
+      aperture: album.bestPhoto.aperture,
+      iso: album.bestPhoto.iso,
+      dimensions: album.bestPhoto.dimensions,
+      anitaCopy: album.bestPhoto.anitaCopy
+    }));
 
-  if (container) {
+    const albumElem = document.getElementById('active-art-album');
+    const counterElem = document.getElementById('active-art-counter');
+    const titleElem = document.getElementById('active-art-title');
+    const descElem = document.getElementById('active-art-desc');
+    const linkElem = document.getElementById('active-art-link') as HTMLAnchorElement;
+    const perspLabel = document.getElementById('persp-label');
+    const btnTogglePersp = document.getElementById('btn-toggle-persp');
+    const prevBtn = document.getElementById('btn-museum-prev');
+    const nextBtn = document.getElementById('btn-museum-next');
+    const masterpieceTabs = document.querySelectorAll('.museum-masterpiece-tab');
+
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x07080B);
     scene.fog = new THREE.FogExp2(0x07080B, 0.018);
@@ -498,4 +501,7 @@ const museumMasterpieces = ALBUMS.map((album, idx) => ({
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
   }
+
+  document.addEventListener('astro:page-load', setupMuseum);
+  setupMuseum();
 </script>

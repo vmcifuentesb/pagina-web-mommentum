@@ -66,17 +66,20 @@ import { ALBUMS } from '../../data/albums';
   import gsap from 'gsap';
   import { ALBUMS } from '../../data/albums';
 
-  const container = document.getElementById('album-webgl-canvas');
-  const numElem = document.getElementById('active-series-num');
-  const countElem = document.getElementById('active-series-count');
-  const catElem = document.getElementById('active-series-cat');
-  const titleElem = document.getElementById('active-series-title');
-  const descElem = document.getElementById('active-series-desc');
-  const linkElem = document.getElementById('active-series-link') as HTMLAnchorElement;
-  const prevBtn = document.getElementById('prev-3d-btn');
-  const nextBtn = document.getElementById('next-3d-btn');
+  function initAlbumGallery() {
+    const container = document.getElementById('album-webgl-canvas');
+    if (!container) return;
+    container.innerHTML = ''; // Clean stale canvases
 
-  if (container) {
+    const numElem = document.getElementById('active-series-num');
+    const countElem = document.getElementById('active-series-count');
+    const catElem = document.getElementById('active-series-cat');
+    const titleElem = document.getElementById('active-series-title');
+    const descElem = document.getElementById('active-series-desc');
+    const linkElem = document.getElementById('active-series-link') as HTMLAnchorElement;
+    const prevBtn = document.getElementById('prev-3d-btn');
+    const nextBtn = document.getElementById('next-3d-btn');
+
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
@@ -275,4 +278,7 @@ import { ALBUMS } from '../../data/albums';
       renderer.setSize(container.clientWidth, container.clientHeight);
     });
   }
+
+  document.addEventListener('astro:page-load', initAlbumGallery);
+  initAlbumGallery();
 </script>
