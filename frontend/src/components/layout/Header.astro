@@ -2,18 +2,19 @@
 const currentPath = Astro.url.pathname;
 
 const navLinks = [
-  { name: 'INICIO', href: '/' },
-  { name: 'QUIÉN SOY', href: '/quien-soy' },
-  { name: 'ÁLBUMES', href: '/portafolio' },
-  { name: 'MUSEO', href: '/museo' },
-  { name: 'CREATIVO', href: '/creativo' },
-  { name: 'MURAL', href: '/mural' },
-  { name: 'FOTÓGRAFOS', href: '/fotografos' },
+  { name: 'INICIO', href: '/', num: '01' },
+  { name: 'QUIÉN SOY', href: '/quien-soy', num: '02' },
+  { name: 'ÁLBUMES', href: '/portafolio', num: '03' },
+  { name: 'MUSEO', href: '/museo', num: '04' },
+  { name: 'CREATIVO', href: '/creativo', num: '05' },
+  { name: 'MURAL', href: '/mural', num: '06' },
+  { name: 'FOTÓGRAFOS', href: '/fotografos', num: '07' },
 ];
 ---
 
-<header class="fixed top-0 left-0 w-full z-50 bg-obsidian/95 backdrop-blur-xl border-b border-white/10 transition-all duration-300">
-  <div class="w-full px-4 sm:px-8 md:px-12 h-20 flex items-center justify-between">
+<!-- Universal Sticky Header -->
+<header class="fixed top-0 left-0 w-full z-50 bg-obsidian/90 backdrop-blur-xl border-b border-white/10 transition-all duration-300">
+  <div class="w-full px-5 sm:px-8 md:px-12 h-20 flex items-center justify-between">
     
     <!-- Clean Typography Brand -->
     <a href="/" class="flex items-center gap-2 sm:gap-3 group" data-cursor="pointer">
@@ -42,8 +43,8 @@ const navLinks = [
       ))}
     </nav>
 
-    <!-- Right Controls: Intro Replay + Instagram + Mobile Hamburger Button -->
-    <div class="flex items-center gap-2 sm:gap-4">
+    <!-- Right Controls: Replay + Instagram + Mobile Hamburger Button -->
+    <div class="flex items-center gap-2.5 sm:gap-4">
       <a 
         href="/?replay=1" 
         class="w-9 h-9 rounded border border-white/20 hover:border-white flex items-center justify-center text-white/80 hover:text-white hover:bg-white/5 transition-all text-sm" 
@@ -63,107 +64,136 @@ const navLinks = [
         @mommentum.ises ↗
       </a>
 
-      <!-- Prominent Mobile Hamburger Menu Toggle Button (Visible on all mobile/tablet screens) -->
+      <!-- Prominent Mobile Hamburger Menu Button -->
       <button 
         id="mobile-menu-btn" 
-        class="lg:hidden relative z-[999] w-11 h-11 rounded-lg bg-carbon/90 border border-white/25 hover:border-white flex flex-col items-center justify-center gap-1.5 p-2 text-white transition-all shadow-lg active:scale-95"
-        aria-label="Abrir Menú de Navegación"
+        class="lg:hidden relative z-[999] w-10 h-10 rounded-lg bg-carbon/90 border border-white/25 hover:border-white flex flex-col items-center justify-center gap-1.5 p-2 text-white transition-all shadow-lg active:scale-95"
+        aria-label="Menú Móvil"
         data-cursor="pointer"
       >
-        <span id="burger-line-1" class="w-6 h-0.5 bg-white rounded-full transition-all duration-300"></span>
-        <span id="burger-line-2" class="w-6 h-0.5 bg-white rounded-full transition-all duration-300"></span>
-        <span id="burger-line-3" class="w-6 h-0.5 bg-white rounded-full transition-all duration-300"></span>
+        <span id="burger-line-1" class="w-5 h-0.5 bg-white rounded-full transition-transform duration-300"></span>
+        <span id="burger-line-2" class="w-5 h-0.5 bg-white rounded-full transition-opacity duration-300"></span>
+        <span id="burger-line-3" class="w-5 h-0.5 bg-white rounded-full transition-transform duration-300"></span>
       </button>
-    </div>
-
-  </div>
-
-  <!-- Fullscreen Mobile Navigation Drawer -->
-  <div 
-    id="mobile-menu-drawer" 
-    class="fixed inset-0 top-0 h-screen w-screen bg-[#07080A]/98 backdrop-blur-3xl z-[990] hidden flex-col justify-between pt-28 pb-10 px-6 sm:px-12 border-b border-white/10 lg:hidden overflow-y-auto select-none"
-  >
-    <!-- Mobile Links List -->
-    <nav class="flex flex-col gap-5 font-condensed text-3xl sm:text-4xl font-bold uppercase tracking-wider">
-      {navLinks.map((link, idx) => (
-        <a 
-          href={link.href} 
-          class={`mobile-nav-link flex items-center justify-between py-2 border-b border-white/10 transition-colors ${
-            (currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href)))
-              ? 'text-white font-bold pl-2' 
-              : 'text-silver/60 hover:text-white pl-2'
-          }`}
-          data-cursor="pointer"
-        >
-          <span>{link.name}</span>
-          <span class="font-mono text-xs text-graphite font-normal">0{idx + 1} ↗</span>
-        </a>
-      ))}
-    </nav>
-
-    <!-- Mobile Footer Info -->
-    <div class="pt-6 border-t border-white/10 flex flex-col gap-4 font-mono text-xs text-graphite">
-      <a 
-        href="https://www.instagram.com/mommentum.ises/" 
-        target="_blank" 
-        rel="noopener noreferrer"
-        class="w-full py-4 bg-white text-obsidian font-bold text-center rounded-lg uppercase tracking-wider text-xs shadow-xl"
-        data-cursor="pointer"
-      >
-        INSTAGRAM @MOMMENTUM.ISES ↗
-      </a>
-      <div class="flex items-center justify-between text-[10px] text-silver/60 pt-2">
-        <span>GUATEMALA • 2026</span>
-        <span>VICTOR CIFUENTES</span>
-      </div>
     </div>
 
   </div>
 </header>
 
+<!-- Standalone Fullscreen Mobile Navigation Drawer (Moved outside header for absolute top z-index) -->
+<div 
+  id="mobile-menu-drawer" 
+  class="fixed inset-0 w-screen h-[100dvh] bg-[#07080B]/98 backdrop-blur-3xl z-[99999] hidden flex-col justify-between p-6 sm:p-10 select-none overflow-y-auto"
+>
+  <!-- Drawer Top Bar -->
+  <div class="flex items-center justify-between border-b border-white/10 pb-5">
+    <a href="/" class="mobile-nav-link flex items-center gap-2">
+      <span class="font-condensed text-2xl font-bold tracking-[0.18em] text-white">
+        MOMMENTUM
+      </span>
+      <span class="font-mono text-[9px] text-graphite tracking-widest uppercase border-l border-white/20 pl-2">
+        MENÚ
+      </span>
+    </a>
+
+    <!-- Close Button (X) -->
+    <button 
+      id="mobile-drawer-close-btn" 
+      class="w-10 h-10 rounded-full border border-white/25 hover:border-white flex items-center justify-center text-white bg-carbon/80 text-sm font-mono active:scale-90 transition-transform"
+      aria-label="Cerrar Menú"
+    >
+      ✕
+    </button>
+  </div>
+
+  <!-- Drawer Links List -->
+  <nav class="flex flex-col py-6 space-y-1">
+    {navLinks.map((link) => {
+      const isActive = currentPath === link.href || (link.href !== '/' && currentPath.startsWith(link.href));
+      return (
+        <a 
+          href={link.href} 
+          class={`mobile-nav-link group flex items-center justify-between py-3.5 px-4 rounded-xl transition-all duration-200 ${
+            isActive 
+              ? 'bg-white/10 text-white font-bold border border-white/20' 
+              : 'text-silver/70 hover:text-white hover:bg-white/5'
+          }`}
+          data-cursor="pointer"
+        >
+          <div class="flex items-center gap-3.5">
+            <span class="font-mono text-[11px] text-graphite group-hover:text-silver transition-colors">
+              // {link.num}
+            </span>
+            <span class="font-condensed text-2xl sm:text-3xl uppercase tracking-wider">
+              {link.name}
+            </span>
+          </div>
+          <span class="font-mono text-xs text-graphite group-hover:text-white transition-colors">
+            {isActive ? '● ACTIVO' : '→'}
+          </span>
+        </a>
+      );
+    })}
+  </nav>
+
+  <!-- Drawer Bottom Footer -->
+  <div class="border-t border-white/10 pt-5 flex flex-col gap-3 font-mono text-xs text-graphite">
+    <a 
+      href="https://www.instagram.com/mommentum.ises/" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      class="w-full py-3.5 bg-white hover:bg-silver text-obsidian font-bold text-center rounded-xl uppercase tracking-wider text-xs shadow-lg transition-colors"
+      data-cursor="pointer"
+    >
+      INSTAGRAM @MOMMENTUM.ISES ↗
+    </a>
+    <div class="flex items-center justify-between text-[10px] text-silver/50 pt-1">
+      <span>SERIES • 2026</span>
+      <span>VICTOR CIFUENTES</span>
+    </div>
+  </div>
+
+</div>
+
 <script>
   const menuBtn = document.getElementById('mobile-menu-btn');
+  const closeBtn = document.getElementById('mobile-drawer-close-btn');
   const menuDrawer = document.getElementById('mobile-menu-drawer');
-  const line1 = document.getElementById('burger-line-1');
-  const line2 = document.getElementById('burger-line-2');
-  const line3 = document.getElementById('burger-line-3');
   const mobileLinks = document.querySelectorAll('.mobile-nav-link');
 
   let isMobileOpen = false;
 
-  const toggleMobileMenu = () => {
-    isMobileOpen = !isMobileOpen;
-    if (isMobileOpen) {
-      menuDrawer?.classList.remove('hidden');
-      menuDrawer?.classList.add('flex');
-      document.body.style.overflow = 'hidden';
-      if (line1 && line2 && line3) {
-        line1.style.transform = 'translateY(8px) rotate(45deg)';
-        line2.style.opacity = '0';
-        line3.style.transform = 'translateY(-8px) rotate(-45deg)';
-      }
-    } else {
-      menuDrawer?.classList.add('hidden');
-      menuDrawer?.classList.remove('flex');
-      document.body.style.overflow = 'auto';
-      if (line1 && line2 && line3) {
-        line1.style.transform = 'none';
-        line2.style.opacity = '1';
-        line3.style.transform = 'none';
-      }
-    }
+  const openDrawer = () => {
+    isMobileOpen = true;
+    menuDrawer?.classList.remove('hidden');
+    menuDrawer?.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeDrawer = () => {
+    isMobileOpen = false;
+    menuDrawer?.classList.add('hidden');
+    menuDrawer?.classList.remove('flex');
+    document.body.style.overflow = 'auto';
   };
 
   if (menuBtn) {
     menuBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      toggleMobileMenu();
+      openDrawer();
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeDrawer();
     });
   }
 
   mobileLinks.forEach((link) => {
     link.addEventListener('click', () => {
-      if (isMobileOpen) toggleMobileMenu();
+      closeDrawer();
     });
   });
 </script>
