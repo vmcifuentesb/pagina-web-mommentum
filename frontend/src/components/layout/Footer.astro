@@ -43,10 +43,21 @@ import { CREATOR } from '../../data/creator';
 
     </div>
 
-    <!-- Bottom Bar -->
-    <div class="pt-8 flex flex-col sm:flex-row items-center justify-between font-mono text-[10px] text-graphite gap-4">
-      <span>© 2026 MOMMENTUM. TODOS LOS DERECHOS RESERVADOS.</span>
-      <span>FOTOGRAFÍA & MOMENTOS</span>
+    <!-- Bottom Bar with Promptend Attribution -->
+    <div class="pt-8 flex flex-col sm:flex-row items-center justify-between font-mono text-xs text-graphite gap-4">
+      <span>© 2026 MOMMENTUM • FOTOGRAFÍAS</span>
+      
+      <a 
+        href="https://promptendweb.com/" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="text-silver/80 hover:text-white transition-colors flex items-center gap-1.5"
+        data-cursor="pointer"
+      >
+        <span>REALIZADO POR</span>
+        <span class="font-bold text-white underline underline-offset-4 tracking-wider">PROMPTEND</span>
+        <span class="text-[10px]">↗</span>
+      </a>
     </div>
 
   </div>
